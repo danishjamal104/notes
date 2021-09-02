@@ -3,7 +3,9 @@ package com.github.danishjamal104.notes.ui.main
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.github.danishjamal104.notes.R
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
