@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">Notes</string>
 
-    <string name="gsm_client_id">907492386886-7lagsqkpp9vo7nguhu5tvpfii75346bo.apps.googleusercontent.com</string>
+    <string name="gsm_client_id">907492386886-8ognb2cqpamuot04mq5q28k9tab92e20.apps.googleusercontent.com</string>
+    <string name="clientSecret">Syq-hmrYCUICXMKrHydkCcPP</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

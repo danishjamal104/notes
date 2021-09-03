@@ -10,7 +10,7 @@ data class User (
     companion object {
 
         fun getInstance(username: String, email: String): User {
-            val id = (username+email).toSHA1()
+            val id = email.toSHA1()
             return User(id, username, email)
         }
 
