@@ -9,6 +9,7 @@ import com.github.danishjamal104.notes.data.mapper.UserMapper
 import com.github.danishjamal104.notes.data.model.Note
 import com.github.danishjamal104.notes.data.model.User
 import com.github.danishjamal104.notes.util.exception.UserStateException
+import java.lang.Exception
 
 class CacheDataSourceImpl
 constructor(
@@ -43,7 +44,23 @@ constructor(
         return noteMapper.mapFromEntityList(result)
     }
 
+    override suspend fun getNote(id: Int, userId: String): Note {
+        val result = noteDao.getNote(id, userId)
+        if(result.size != 1) {
+            throw Exception("Note doesn't exist with id = $id")
+        }
+        return noteMapper.mapFromEntity(result[0])
+    }
+
     override suspend fun updateNote(note: Note): Int {
-        return noteDao.updateNote(noteMapper.mapToEntity(note))
+        val cacheNoteEntity = noteMapper.mapToEntity(note)
+        cacheNoteEntity.id = note.id
+        return noteDao.updateNote(cacheNoteEntity)
+    }
+
+    override suspend fun deleteNote(note: Note): Int {
+        val cacheNoteEntity = noteMapper.mapToEntity(note)
+        cacheNoteEntity.id = note.id
+        return noteDao.deleteNote(cacheNoteEntity)
     }
 }

@@ -14,7 +14,7 @@ constructor(): AbstractMapper<NoteCacheEntity, Note>() {
     }
 
     override fun mapToEntity(domainModel: Note): NoteCacheEntity {
-        return NoteCacheEntity(domainModel.id, domainModel.userId,
+        return NoteCacheEntity(domainModel.userId,
             domainModel.value, domainModel.timestamp)
     }
 }

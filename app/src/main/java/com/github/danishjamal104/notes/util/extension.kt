@@ -23,30 +23,30 @@ fun String.toSHA1(): String {
     }
 }
 
-fun View.Gone() {
+fun View.gone() {
     this.visibility = View.GONE
 }
 
-fun View.Visible() {
+fun View.visible() {
     this.visibility = View.VISIBLE
 }
 
-fun View.Invisible() {
+fun View.invisible() {
     this.visibility = View.INVISIBLE
 }
 
-fun View.Disable() {
+fun View.disable() {
     this.isEnabled = false
 }
 
-fun View.Enable() {
+fun View.enable() {
     this.isEnabled = true
 }
 
-fun Fragment.ShortToast(message: String) {
+fun Fragment.shortToast(message: String) {
     Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
 }
 
-fun Fragment.LongToast(message: String) {
+fun Fragment.longToast(message: String) {
     Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
 }

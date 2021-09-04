@@ -5,7 +5,6 @@ import com.github.danishjamal104.notes.data.model.User
 import com.github.danishjamal104.notes.util.ServiceResult
 import com.github.danishjamal104.notes.util.sharedpreference.UserPreferences
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import java.lang.Exception
 
 class AuthRepositoryImpl

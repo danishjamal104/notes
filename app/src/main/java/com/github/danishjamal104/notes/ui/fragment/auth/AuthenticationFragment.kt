@@ -12,18 +12,14 @@ import com.github.danishjamal104.notes.databinding.FragmentAuthenticationBinding
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import dagger.hilt.android.AndroidEntryPoint
-import com.google.android.gms.common.api.ApiException
-
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.tasks.Task
-import android.util.Log
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.github.danishjamal104.notes.util.Disable
-import com.github.danishjamal104.notes.util.Enable
-import com.github.danishjamal104.notes.util.LongToast
-import com.github.danishjamal104.notes.util.Visible
+import com.github.danishjamal104.notes.util.disable
+import com.github.danishjamal104.notes.util.enable
+import com.github.danishjamal104.notes.util.longToast
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -61,26 +57,25 @@ class AuthenticationFragment : Fragment(R.layout.fragment_authentication) {
         registerViewModelAuthState()
     }
 
-    fun registerViewModelAuthState() {
+    private fun registerViewModelAuthState() {
         viewModel.authState.observe(viewLifecycleOwner) {
             when(it) {
                 AuthState.Loading -> {
-                    binding.progressBar.Visible()
-                    binding.signInButton.Disable()
+                    binding.signInButton.disable()
                 }
                 is AuthState.LogInFailure -> {
-                    LongToast(it.reason)
-                    binding.signInButton.Enable()
+                    longToast(it.reason)
+                    binding.signInButton.enable()
                 }
                 is AuthState.LogInSuccess -> {
-                    LongToast("Welcome ${it.user.username}")
+                    longToast("Welcome ${it.user.username}")
                     findNavController().navigate(R.id.action_authenticationFragment_to_homeFragment)
                 }
             }
         }
     }
 
-    fun login() {
+    private fun login() {
         val signInIntent = googleSignInClient.signInIntent
         signInIntentLauncher.launch(signInIntent)
     }

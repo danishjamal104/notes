@@ -32,11 +32,16 @@
     </fragment>
     <fragment
         android:id="@+id/noteFragment"
-        android:name="com.github.danishjamal104.notes.ui.fragment.NoteFragment"
+        android:name="com.github.danishjamal104.notes.ui.fragment.note.NoteFragment"
         android:label="fragment_note"
         tools:layout="@layout/fragment_note" >
         <action
             android:id="@+id/action_noteFragment_to_homeFragment"
-            app:destination="@id/homeFragment" />
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToInclusive="true" />
+        <argument
+            android:name="noteId"
+            app:argType="integer"/>
     </fragment>
 </navigation>

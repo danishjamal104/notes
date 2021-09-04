@@ -2,6 +2,7 @@ package com.github.danishjamal104.notes.di
 
 import android.content.Context
 import com.github.danishjamal104.notes.ui.Notes
+import com.github.danishjamal104.notes.ui.fragment.home.adapter.NotesAdapter
 import com.github.danishjamal104.notes.util.sharedpreference.UserPreferences
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -50,6 +51,12 @@ object AppModule {
     @Provides
     fun provideGoogleSignInAccount(@ApplicationContext context: Context): GoogleSignInAccount? {
         return GoogleSignIn.getLastSignedInAccount(context)
+    }
+
+    @Singleton
+    @Provides
+    fun provideNoteAdapter(@ApplicationContext context: Context): NotesAdapter {
+        return NotesAdapter(context)
     }
 
 }

@@ -1,16 +1,13 @@
 package com.github.danishjamal104.notes.ui.fragment.auth
 
-import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.danishjamal104.notes.data.model.User
 import com.github.danishjamal104.notes.data.repository.auth.AuthRepository
-import com.github.danishjamal104.notes.util.DataState
+import com.github.danishjamal104.notes.ui.Event
 import com.github.danishjamal104.notes.util.ServiceResult
-import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
@@ -22,12 +19,12 @@ import javax.inject.Inject
 class AuthViewModel
 @Inject constructor(
     private val authRepository: AuthRepository
-): ViewModel() {
+): ViewModel(), Event<AuthEvent> {
 
     private val _authState: MutableLiveData<AuthState<User>> = MutableLiveData()
     val authState: LiveData<AuthState<User>> get() = _authState
 
-    fun setEvent(event: AuthEvent) {
+    override fun setEvent(event: AuthEvent) {
         viewModelScope.launch {
             when(event) {
                 is AuthEvent.Login -> login(event.googleTaskResult)
@@ -35,12 +32,12 @@ class AuthViewModel
         }
     }
 
-    suspend fun login(googleTaskResult: Task<GoogleSignInAccount>) {
+    private suspend fun login(googleTaskResult: Task<GoogleSignInAccount>) {
         val account: GoogleSignInAccount
         try {
             account = googleTaskResult.getResult(ApiException::class.java)
         } catch (e: ApiException) {
-            _authState.value = AuthState.LogInFailure(e.localizedMessage)
+            _authState.value = AuthState.LogInFailure(""+e.localizedMessage)
             return
         }
 
