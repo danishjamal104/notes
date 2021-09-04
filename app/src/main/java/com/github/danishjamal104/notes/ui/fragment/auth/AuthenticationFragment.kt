@@ -50,7 +50,7 @@ class AuthenticationFragment : Fragment(R.layout.fragment_authentication) {
                 val task = GoogleSignIn.getSignedInAccountFromIntent(it.data)
                 handleSignInResult(task)
             } else {
-                Toast.makeText(requireContext(), "Invalid result code : ${it.resultCode}, data: ${it.data}", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), "Login Failed or canceled by user", Toast.LENGTH_LONG).show()
             }
         }
 

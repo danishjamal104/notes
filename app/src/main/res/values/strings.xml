@@ -8,4 +8,6 @@
     <string name="notes">Notes</string>
     <string name="pull_down_to_get_started">Pull down to get started</string>
     <string name="get_started_by_authenticating">Get started by authenticating</string>
+    <string name="confirm">Confirm</string>
+    <string name="logout_alert_message">Do you want to logout?</string>
 </resources>

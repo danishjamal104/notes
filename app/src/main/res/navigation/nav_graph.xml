@@ -13,11 +13,15 @@
         <action
             android:id="@+id/action_homeFragment_to_authenticationFragment"
             app:destination="@id/authenticationFragment"
+            app:enterAnim="@android:anim/fade_in"
+            app:exitAnim="@android:anim/fade_out"
             app:popUpTo="@id/homeFragment"
             app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_homeFragment_to_noteFragment"
-            app:destination="@id/noteFragment" />
+            app:destination="@id/noteFragment"
+            app:enterAnim="@android:anim/fade_in"
+            app:exitAnim="@android:anim/fade_out" />
     </fragment>
     <fragment
         android:id="@+id/authenticationFragment"
@@ -27,6 +31,8 @@
         <action
             android:id="@+id/action_authenticationFragment_to_homeFragment"
             app:destination="@id/homeFragment"
+            app:enterAnim="@android:anim/fade_in"
+            app:exitAnim="@android:anim/fade_out"
             app:popUpTo="@id/authenticationFragment"
             app:popUpToInclusive="true" />
     </fragment>
@@ -38,6 +44,8 @@
         <action
             android:id="@+id/action_noteFragment_to_homeFragment"
             app:destination="@id/homeFragment"
+            app:enterAnim="@android:anim/fade_in"
+            app:exitAnim="@android:anim/fade_out"
             app:popUpTo="@id/homeFragment"
             app:popUpToInclusive="true" />
         <argument

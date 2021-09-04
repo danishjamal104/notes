@@ -12,6 +12,10 @@
                motion:motionTarget="@+id/sign_in_button"
                motion:framePosition="47"
                android:alpha="0" />
+           <KeyAttribute
+               motion:motionTarget="@+id/drag_image_icon"
+               motion:framePosition="50"
+               android:alpha="0" />
        </KeyFrameSet>
         <OnSwipe motion:dragDirection="dragDown" />
     </Transition>
@@ -82,5 +86,15 @@
             android:alpha="1"
             motion:layout_constraintStart_toStartOf="parent"
             android:translationY="100dp" />
+        <Constraint
+            android:id="@+id/drag_image_icon"
+            motion:layout_constraintEnd_toEndOf="parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintTop_toBottomOf="@+id/drag_guide_text_auth_info"
+            android:rotation="90"
+            motion:layout_constraintStart_toStartOf="parent"
+            motion:layout_constraintVertical_bias="0.62" />
     </ConstraintSet>
 </MotionScene>

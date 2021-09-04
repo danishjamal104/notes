@@ -68,6 +68,18 @@
         app:layout_constraintVertical_bias="0.21"
         android:alpha="0"/>
 
+    <ImageView
+        android:id="@+id/drag_image_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:rotation="270"
+        android:src="@drawable/ic_back"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/drag_guide_text_auth_info"
+        app:tint="@color/black" />
+
     <com.google.android.gms.common.SignInButton
         android:id="@+id/sign_in_button"
         android:layout_width="wrap_content"

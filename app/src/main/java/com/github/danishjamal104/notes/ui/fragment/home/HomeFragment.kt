@@ -79,13 +79,21 @@ class HomeFragment : Fragment(R.layout.fragment_home), ItemClickListener<Note> {
             findNavController().navigate(R.id.action_homeFragment_to_noteFragment)
         }
         binding.actionButton.setOnClickListener {
-            googleSignInClient.signOut().addOnCompleteListener {
-                preferences.revokeAuthentication()
-                findNavController().navigate(R.id.action_homeFragment_to_authenticationFragment)
+            val title = getString(R.string.confirm)
+            val message = getString(R.string.logout_alert_message)
+            requireContext().showDefaultMaterialAlert(title, message) {
+                logOut()
             }
         }
         binding.swipeRefresh.setOnRefreshListener {
             viewModel.setEvent(HomeEvent.GetNotes)
+        }
+    }
+
+    private fun logOut() {
+        googleSignInClient.signOut().addOnCompleteListener {
+            preferences.revokeAuthentication()
+            findNavController().navigate(R.id.action_homeFragment_to_authenticationFragment)
         }
     }
 

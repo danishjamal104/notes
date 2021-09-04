@@ -105,6 +105,7 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
     }
 
     private fun createNote() {
+        hideKeyboard()
         val text = binding.note.text.toString().trim()
         if(text.isEmpty()) {
             shortToast("Note can't be empty")
@@ -114,6 +115,7 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
     }
 
     private fun updateNote(note: Note) {
+        hideKeyboard()
         val newText = binding.note.text.toString()
         if(newText.trim() == note.value) {
             shortToast("No update")
