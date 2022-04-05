@@ -1,8 +1,8 @@
 package com.github.danishjamal104.notes.util
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.util.Base64
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.lang.RuntimeException
 import java.math.BigInteger
+import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 
@@ -26,6 +27,16 @@ fun String.toSHA1(): String {
     }catch (e: NoSuchAlgorithmException) {
         throw RuntimeException(e)
     }
+}
+
+fun String.encodeToBase64(): String {
+    val bytes = this.toByteArray(StandardCharsets.UTF_8)
+    return Base64.encodeToString(bytes, Base64.DEFAULT)
+}
+
+fun String.decodeFromBase64(): String {
+    val data = Base64.decode(this, Base64.DEFAULT)
+    return String(data, StandardCharsets.UTF_8)
 }
 
 fun View.gone() {

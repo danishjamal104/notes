@@ -3,6 +3,7 @@ package com.github.danishjamal104.notes.data.repository.note
 import com.github.danishjamal104.notes.data.local.CacheDataSource
 import com.github.danishjamal104.notes.data.model.Note
 import com.github.danishjamal104.notes.util.ServiceResult
+import com.github.danishjamal104.notes.util.encodeToBase64
 import com.github.danishjamal104.notes.util.sharedpreference.UserPreferences
 import java.lang.Exception
 import java.util.*
@@ -17,7 +18,8 @@ constructor(
 
 
     override suspend fun createNote(noteText: String): ServiceResult<Unit> {
-        val note = Note(-1, userId, noteText, Date().time)
+        val encodedNoteText = noteText.encodeToBase64()
+        val note = Note(-1, userId, encodedNoteText, Date().time)
         return try {
             cacheDataSource.addNote(note)
             ServiceResult.Success(Unit)
