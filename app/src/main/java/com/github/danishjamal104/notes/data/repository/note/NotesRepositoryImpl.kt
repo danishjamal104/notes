@@ -47,6 +47,7 @@ constructor(
     }
 
     override suspend fun updateNote(note: Note): ServiceResult<Note> {
+        note.value = note.value.encodeToBase64()
         return try {
             when(cacheDataSource.updateNote(note)) {
                 0 -> ServiceResult.Error("Updating failed ")

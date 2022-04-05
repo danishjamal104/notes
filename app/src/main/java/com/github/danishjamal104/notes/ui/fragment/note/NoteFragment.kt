@@ -6,6 +6,10 @@ import android.text.Editable
 import android.text.TextWatcher
 import androidx.fragment.app.Fragment
 import android.view.View
+import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
+import androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL
+import androidx.biometric.BiometricPrompt
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.github.danishjamal104.notes.R
@@ -29,7 +33,7 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
     private val viewModel: NoteViewModel by viewModels()
 
     private var noteId: Int? = null
-    private var note: Note? = null
+    private lateinit var note: Note
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -67,27 +71,32 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
 
     private fun registerClickEvents() {
         binding.deleteButton.setOnClickListener {
-            note?.let {
-                viewModel.setEvent(NoteEvent.DeleteNote(it))
-            } ?: clearText()
+            if(this::note.isInitialized) {
+                viewModel.setEvent(NoteEvent.DeleteNote(note))
+            } else {
+                clearText()
+            }
         }
         binding.saveButton.setOnClickListener {
-            note?.let {
-                updateNote(it)
-            } ?: createNote()
+            if(this::note.isInitialized) {
+                updateNote(note)
+            } else {
+                createNote()
+            }
         }
         binding.backButton.setOnClickListener {
             findNavController().navigate(R.id.action_noteFragment_to_homeFragment)
         }
+        val isNoteInitialised = this::note.isInitialized
         binding.note.addTextChangedListener(object : TextWatcher{
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
 
             override fun afterTextChanged(s: Editable?) {
-                val newText = s.toString().trim()
-                if(note != null) {
-                    if(newText == note!!.value) {
+                val newText = s.toString().trim().encodeToBase64()
+                if(isNoteInitialised) {
+                    if(newText == note.value) {
                         binding.saveButton.gone()
                     } else {
                         binding.saveButton.visible()
@@ -134,10 +143,11 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
         binding.saveButton.isClickable = true
     }
 
+    @SuppressLint("NewApi")
     private fun handleFetchNoteSuccess(note: Note) {
         enableButtons()
         this.note = note
-        binding.note.setText(note.value)
+        biometricPrompt()
     }
 
     private fun handleEventResult(event: NoteState.EventResult) {
@@ -151,6 +161,38 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
         binding.progressBar.show()
         binding.deleteButton.isClickable = false
         binding.saveButton.isClickable = false
+    }
+
+    @SuppressLint("NewApi")
+    private fun biometricPrompt() {
+        val promptInfo = BiometricPrompt.PromptInfo.Builder()
+            .setTitle("Verify to see content")
+            .setSubtitle("Only verified user are allowed to see the content")
+            .setAllowedAuthenticators(BIOMETRIC_STRONG or DEVICE_CREDENTIAL)
+            .build()
+        val executor = ContextCompat.getMainExecutor(requireContext())
+        val biometricPrompt = BiometricPrompt(this, executor,
+            object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationError(errorCode: Int,
+                                                   errString: CharSequence) {
+                    super.onAuthenticationError(errorCode, errString)
+                    shortToast("Authentication error: $errString")
+                    findNavController().navigate(R.id.action_noteFragment_to_homeFragment)
+                }
+
+                override fun onAuthenticationSucceeded(
+                    result: BiometricPrompt.AuthenticationResult) {
+                    super.onAuthenticationSucceeded(result)
+                    binding.note.setText(note.value.decodeFromBase64())
+                }
+
+                override fun onAuthenticationFailed() {
+                    super.onAuthenticationFailed()
+                    shortToast("Authentication failed")
+                    findNavController().navigate(R.id.action_noteFragment_to_homeFragment)
+                }
+            })
+        biometricPrompt.authenticate(promptInfo)
     }
 
 }
