@@ -61,6 +61,28 @@
         app:layout_constraintTop_toBottomOf="@+id/header_relative_layout"
         tools:text="May 21, 2020" />
 
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/note_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:fontFamily="sans-serif"
+        android:hint="@string/title"
+        android:lineSpacingExtra="3dp"
+        android:textColor="@color/black"
+        android:textSize="22sp"
+        tools:text="Title"
+        android:maxLines="1"
+        android:layout_marginStart="@dimen/root_side_margin"
+        android:layout_marginTop="@dimen/root_side_margin"
+        android:layout_marginEnd="@dimen/root_side_margin"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/date"
+        app:layout_constraintVertical_bias="0.0"/>
+
     <ScrollView
         android:id="@+id/scrollView2"
         android:layout_width="match_parent"
@@ -72,7 +94,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/date"
+        app:layout_constraintTop_toBottomOf="@+id/note_title"
         app:layout_constraintVertical_bias="0.0">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -81,7 +103,7 @@
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
             android:fontFamily="sans-serif"
-            android:hint="Start typing"
+            android:hint="@string/start_typing"
             android:lineSpacingExtra="3dp"
             android:textColor="@color/black"
             android:textSize="16sp"

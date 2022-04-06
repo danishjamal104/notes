@@ -116,21 +116,27 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
     private fun createNote() {
         hideKeyboard()
         val text = binding.note.text.toString().trim()
+        var title = binding.noteTitle.text.toString().trim()
         if(text.isEmpty()) {
             shortToast("Note can't be empty")
             return
         }
-        viewModel.setEvent(NoteEvent.CreateNote(text))
+        if(text.isEmpty()) {
+            shortToast("Note title is empty")
+        }
+        viewModel.setEvent(NoteEvent.CreateNote(text, title))
     }
 
     private fun updateNote(note: Note) {
         hideKeyboard()
-        val newText = binding.note.text.toString()
-        if(newText.trim() == note.value) {
+        val newText = binding.note.text.toString().trim()
+        val newTitle = binding.noteTitle.text.toString().trim()
+        if(newText.encodeToBase64() == note.value && newTitle == note.title) {
             shortToast("No update")
             return
         }
         note.value = newText
+        note.title = newTitle
         viewModel.setEvent(NoteEvent.UpdateNote(note))
     }
 
@@ -184,6 +190,7 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
                     result: BiometricPrompt.AuthenticationResult) {
                     super.onAuthenticationSucceeded(result)
                     binding.note.setText(note.value.decodeFromBase64())
+                    binding.noteTitle.setText(note.title)
                 }
 
                 override fun onAuthenticationFailed() {

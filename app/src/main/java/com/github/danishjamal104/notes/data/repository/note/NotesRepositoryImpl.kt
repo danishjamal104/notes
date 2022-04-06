@@ -17,9 +17,10 @@ constructor(
     private val userId get() = userPreferences.getUserId()
 
 
-    override suspend fun createNote(noteText: String): ServiceResult<Unit> {
+    override suspend fun createNote(noteText: String, noteTitle: String?): ServiceResult<Unit> {
         val encodedNoteText = noteText.encodeToBase64()
-        val note = Note(-1, userId, encodedNoteText, Date().time)
+        val title = noteTitle.let { it } ?: ""
+        val note = Note(-1, userId, encodedNoteText, title, Date().time)
         return try {
             cacheDataSource.addNote(note)
             ServiceResult.Success(Unit)

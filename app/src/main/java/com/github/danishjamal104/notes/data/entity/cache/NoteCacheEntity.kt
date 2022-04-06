@@ -13,6 +13,9 @@ class NoteCacheEntity (
     @ColumnInfo(name = "value")
     var value: String,
 
+    @ColumnInfo(name = "title")
+    var title: String,
+
     @ColumnInfo(name = "timestamp")
     var timestamp: Long
 ) {

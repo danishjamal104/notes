@@ -24,7 +24,7 @@ class NoteViewModel
     override fun setEvent(event: NoteEvent) {
         viewModelScope.launch {
             when(event) {
-                is NoteEvent.CreateNote -> createNote(event.note)
+                is NoteEvent.CreateNote -> createNote(event.note, event.title)
                 is NoteEvent.DeleteNote -> deleteNote(event.note)
                 is NoteEvent.UpdateNote -> updateNote(event.note)
                 is NoteEvent.GetNote -> getNote(event.noteId)
@@ -44,9 +44,9 @@ class NoteViewModel
     }
 
 
-    private suspend fun createNote(note: String) {
+    private suspend fun createNote(note: String, title: String? = null) {
         _noteState.value = NoteState.Loading
-        when(val result = notesRepository.createNote(note)) {
+        when(val result = notesRepository.createNote(note, title)) {
             is ServiceResult.Success -> {
                 _noteState.postValue(NoteState.EventResult(true,
                     "Note created successfully"))
@@ -91,7 +91,7 @@ sealed class NoteState {
 
 sealed class NoteEvent {
     data class GetNote(val noteId: Int) : NoteEvent()
-    data class CreateNote(val note: String) : NoteEvent()
+    data class CreateNote(val note: String, val title: String? = null) : NoteEvent()
     data class UpdateNote(val note: Note) : NoteEvent()
     data class DeleteNote(val note: Note) : NoteEvent()
 }
