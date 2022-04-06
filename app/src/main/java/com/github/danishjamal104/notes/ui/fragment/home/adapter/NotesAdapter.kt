@@ -42,7 +42,7 @@ constructor(val context: Context): RecyclerView.Adapter<NotesAdapter.NoteViewHol
         val item = data[position]
         val binding = holder.binding
 
-        binding.note.text = item.value
+        binding.noteTitle.text = item.title
         binding.date.text = sdf.format(Date(item.timestamp))
 
         val color = ContextCompat.getColor(context, getRandomColorInt())
