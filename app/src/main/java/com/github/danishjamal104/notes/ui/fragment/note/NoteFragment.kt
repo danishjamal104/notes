@@ -19,6 +19,7 @@ import com.github.danishjamal104.notes.util.*
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.concurrent.schedule
 
 @AndroidEntryPoint
 class NoteFragment : Fragment(R.layout.fragment_note) {
@@ -58,6 +59,12 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
 
     }
 
+    private fun setupScreenTimeout() {
+        Timer("", false).schedule(12000) {
+            requireActivity().runOnUiThread { lockData() }
+        }
+    }
+
     private fun registerNoteState() {
         viewModel.noteSate.observe(viewLifecycleOwner) {
             when(it) {
@@ -87,25 +94,47 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
         binding.backButton.setOnClickListener {
             findNavController().navigate(R.id.action_noteFragment_to_homeFragment)
         }
-        val isNoteInitialised = this::note.isInitialized
+
+        var isNoteValueChanged = false
+        var isNoteTitleChanged = false
         binding.note.addTextChangedListener(object : TextWatcher{
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-
             override fun afterTextChanged(s: Editable?) {
                 val newText = s.toString().trim().encodeToBase64()
-                if(isNoteInitialised) {
-                    if(newText == note.value) {
+                if(isNoteInitialised()) {
+                    isNoteValueChanged = if(newText == note.value && !isNoteTitleChanged) {
                         binding.saveButton.gone()
+                        false
                     } else {
                         binding.saveButton.visible()
+                        true
                     }
-                } else {
-                    if(newText.isEmpty()) {
+                }
+                noteId?.let {
+                    if(it == -1) {
+                        if(newText.isEmpty()) {
+                            binding.saveButton.gone()
+                        } else {
+                            binding.saveButton.visible()
+                        }
+                    }
+                }
+            }
+        })
+
+        binding.noteTitle.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                val newTitle = s.toString().trim()
+                if(isNoteInitialised()) {
+                    isNoteTitleChanged = if(newTitle == note.title && !isNoteValueChanged) {
                         binding.saveButton.gone()
+                        false
                     } else {
                         binding.saveButton.visible()
+                        true
                     }
                 }
             }
@@ -116,18 +145,19 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
     private fun createNote() {
         hideKeyboard()
         val text = binding.note.text.toString().trim()
-        var title = binding.noteTitle.text.toString().trim()
+        val title = binding.noteTitle.text.toString().trim()
         if(text.isEmpty()) {
             shortToast("Note can't be empty")
             return
         }
-        if(text.isEmpty()) {
-            shortToast("Note title is empty")
+        if(title.isEmpty()) {
+            shortToast("Note title can't be empty")
+            return
         }
         viewModel.setEvent(NoteEvent.CreateNote(text, title))
     }
 
-    private fun updateNote(note: Note) {
+    private fun updateNote(note: Note, titleUpdate: Boolean = true, noteValueUpdate: Boolean = true) {
         hideKeyboard()
         val newText = binding.note.text.toString().trim()
         val newTitle = binding.noteTitle.text.toString().trim()
@@ -135,8 +165,8 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
             shortToast("No update")
             return
         }
-        note.value = newText
-        note.title = newTitle
+        if (noteValueUpdate) { note.value = newText }
+        if (titleUpdate) { note.title = newTitle }
         viewModel.setEvent(NoteEvent.UpdateNote(note))
     }
 
@@ -149,11 +179,23 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
         binding.saveButton.isClickable = true
     }
 
+    private fun disableButtons() {
+        binding.deleteButton.isClickable = false
+        binding.saveButton.isClickable = false
+    }
+
+    private fun disableEditableFields() {
+        binding.note.disable()
+        binding.noteTitle.disable()
+    }
+
     @SuppressLint("NewApi")
     private fun handleFetchNoteSuccess(note: Note) {
+        binding.progressBar.hide()
         enableButtons()
         this.note = note
         biometricPrompt()
+        setupScreenTimeout()
     }
 
     private fun handleEventResult(event: NoteState.EventResult) {
@@ -165,8 +207,7 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
 
     private fun handleLoading() {
         binding.progressBar.show()
-        binding.deleteButton.isClickable = false
-        binding.saveButton.isClickable = false
+        disableButtons()
     }
 
     @SuppressLint("NewApi")
@@ -189,8 +230,7 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
                 override fun onAuthenticationSucceeded(
                     result: BiometricPrompt.AuthenticationResult) {
                     super.onAuthenticationSucceeded(result)
-                    binding.note.setText(note.value.decodeFromBase64())
-                    binding.noteTitle.setText(note.title)
+                    unlockData()
                 }
 
                 override fun onAuthenticationFailed() {
@@ -200,6 +240,27 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
                 }
             })
         biometricPrompt.authenticate(promptInfo)
+    }
+
+    // this method replaces the original text with the encoded text on screen
+    private fun lockData() {
+        binding.saveButton.gone()
+        disableEditableFields()
+        setData(note.value, note.title)
+    }
+
+    // this method replaces the encoded text with the original text on screen
+    private fun unlockData() {
+        setData(note.value.decodeFromBase64(), note.title)
+    }
+
+    private fun setData(noteData: String, noteTitle: String) {
+        binding.note.setText(noteData)
+        binding.noteTitle.setText(noteTitle)
+    }
+
+    private fun isNoteInitialised(): Boolean {
+        return this::note.isInitialized
     }
 
 }
