@@ -6,6 +6,9 @@ import android.util.Base64
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.lang.RuntimeException
@@ -89,4 +92,66 @@ fun Activity.hideKeyboard() {
 
 fun Fragment.hideKeyboard() {
     view?.let { activity?.hideKeyboard(it) }
+}
+
+fun Fragment.performActionThroughSecuredChannel(error: (reason: String) -> Unit, success: () -> Unit, failed: () -> Unit) {
+    val title = "Requires authentication"
+    val subtitle = "You are trying to access/perform secured content/task which require authentication"
+    val promptInfo = BiometricPrompt.PromptInfo.Builder()
+        .setTitle(title)
+        .setSubtitle(subtitle)
+        .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+        .build()
+    val executor = ContextCompat.getMainExecutor(requireContext())
+    val biometricPrompt = BiometricPrompt(this, executor,
+        object : BiometricPrompt.AuthenticationCallback() {
+            override fun onAuthenticationError(errorCode: Int,
+                                               errString: CharSequence) {
+                super.onAuthenticationError(errorCode, errString)
+                error.invoke(errString.toString())
+            }
+
+            override fun onAuthenticationSucceeded(
+                result: BiometricPrompt.AuthenticationResult) {
+                super.onAuthenticationSucceeded(result)
+                success.invoke()
+            }
+
+            override fun onAuthenticationFailed() {
+                super.onAuthenticationFailed()
+                failed.invoke()
+            }
+        })
+    biometricPrompt.authenticate(promptInfo)
+}
+
+fun Fragment.performActionThroughSecuredChannel(success: () -> Unit) {
+    val title = "Requires authentication"
+    val subtitle = "You are trying to access/perform secured content/task which require authentication"
+    val promptInfo = BiometricPrompt.PromptInfo.Builder()
+        .setTitle(title)
+        .setSubtitle(subtitle)
+        .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+        .build()
+    val executor = ContextCompat.getMainExecutor(requireContext())
+    val biometricPrompt = BiometricPrompt(this, executor,
+        object : BiometricPrompt.AuthenticationCallback() {
+            override fun onAuthenticationError(errorCode: Int,
+                                               errString: CharSequence) {
+                super.onAuthenticationError(errorCode, errString)
+                shortToast("Authentication error: $errString")
+            }
+
+            override fun onAuthenticationSucceeded(
+                result: BiometricPrompt.AuthenticationResult) {
+                super.onAuthenticationSucceeded(result)
+                success.invoke()
+            }
+
+            override fun onAuthenticationFailed() {
+                super.onAuthenticationFailed()
+                shortToast("Authentication failed")
+            }
+        })
+    biometricPrompt.authenticate(promptInfo)
 }

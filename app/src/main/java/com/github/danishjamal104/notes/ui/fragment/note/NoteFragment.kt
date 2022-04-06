@@ -6,10 +6,6 @@ import android.text.Editable
 import android.text.TextWatcher
 import androidx.fragment.app.Fragment
 import android.view.View
-import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
-import androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL
-import androidx.biometric.BiometricPrompt
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.github.danishjamal104.notes.R
@@ -36,6 +32,8 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
     private var noteId: Int? = null
     private lateinit var note: Note
 
+    private var isScreenLocked = false
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentNoteBinding.bind(view)
@@ -61,7 +59,11 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
 
     private fun setupScreenTimeout() {
         Timer("", false).schedule(12000) {
-            requireActivity().runOnUiThread { lockData() }
+            try {
+                requireActivity().runOnUiThread { lockData() }
+            } catch (_: Exception) {
+                this.cancel()
+            }
         }
     }
 
@@ -79,7 +81,9 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
     private fun registerClickEvents() {
         binding.deleteButton.setOnClickListener {
             if(this::note.isInitialized) {
-                viewModel.setEvent(NoteEvent.DeleteNote(note))
+                performActionThroughSecuredChannel {
+                    viewModel.setEvent(NoteEvent.DeleteNote(note))
+                }
             } else {
                 clearText()
             }
@@ -94,13 +98,17 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
         binding.backButton.setOnClickListener {
             findNavController().navigate(R.id.action_noteFragment_to_homeFragment)
         }
+        registerTextWatcher()
+    }
 
+    private fun registerTextWatcher() {
         var isNoteValueChanged = false
         var isNoteTitleChanged = false
-        binding.note.addTextChangedListener(object : TextWatcher{
+        val noteTextWatcher = object : TextWatcher{
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
+                if(isScreenLocked) { return }
                 val newText = s.toString().trim().encodeToBase64()
                 if(isNoteInitialised()) {
                     isNoteValueChanged = if(newText == note.value && !isNoteTitleChanged) {
@@ -121,12 +129,12 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
                     }
                 }
             }
-        })
-
-        binding.noteTitle.addTextChangedListener(object : TextWatcher {
+        }
+        val noteTitleTextWatcher = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
+                if(isScreenLocked) { return }
                 val newTitle = s.toString().trim()
                 if(isNoteInitialised()) {
                     isNoteTitleChanged = if(newTitle == note.title && !isNoteValueChanged) {
@@ -139,7 +147,9 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
                 }
             }
 
-        })
+        }
+        binding.note.addTextChangedListener(noteTextWatcher)
+        binding.noteTitle.addTextChangedListener(noteTitleTextWatcher)
     }
 
     private fun createNote() {
@@ -189,7 +199,6 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
         binding.noteTitle.disable()
     }
 
-    @SuppressLint("NewApi")
     private fun handleFetchNoteSuccess(note: Note) {
         binding.progressBar.hide()
         enableButtons()
@@ -210,40 +219,21 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
         disableButtons()
     }
 
-    @SuppressLint("NewApi")
     private fun biometricPrompt() {
-        val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle("Verify to see content")
-            .setSubtitle("Only verified user are allowed to see the content")
-            .setAllowedAuthenticators(BIOMETRIC_STRONG or DEVICE_CREDENTIAL)
-            .build()
-        val executor = ContextCompat.getMainExecutor(requireContext())
-        val biometricPrompt = BiometricPrompt(this, executor,
-            object : BiometricPrompt.AuthenticationCallback() {
-                override fun onAuthenticationError(errorCode: Int,
-                                                   errString: CharSequence) {
-                    super.onAuthenticationError(errorCode, errString)
-                    shortToast("Authentication error: $errString")
-                    findNavController().navigate(R.id.action_noteFragment_to_homeFragment)
-                }
-
-                override fun onAuthenticationSucceeded(
-                    result: BiometricPrompt.AuthenticationResult) {
-                    super.onAuthenticationSucceeded(result)
-                    unlockData()
-                }
-
-                override fun onAuthenticationFailed() {
-                    super.onAuthenticationFailed()
-                    shortToast("Authentication failed")
-                    findNavController().navigate(R.id.action_noteFragment_to_homeFragment)
-                }
-            })
-        biometricPrompt.authenticate(promptInfo)
+        performActionThroughSecuredChannel({
+            shortToast("Authentication error: $it")
+            findNavController().navigate(R.id.action_noteFragment_to_homeFragment)
+        }, {
+            unlockData()
+        }, {
+            shortToast("Authentication failed")
+            findNavController().navigate(R.id.action_noteFragment_to_homeFragment)
+        })
     }
 
     // this method replaces the original text with the encoded text on screen
     private fun lockData() {
+        isScreenLocked = true
         binding.saveButton.gone()
         disableEditableFields()
         setData(note.value, note.title)
@@ -251,6 +241,7 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
 
     // this method replaces the encoded text with the original text on screen
     private fun unlockData() {
+        isScreenLocked = false
         setData(note.value.decodeFromBase64(), note.title)
     }
 
