@@ -51,6 +51,7 @@ dependencies {
     implementation 'androidx.navigation:navigation-fragment-ktx:2.3.5'
     implementation 'androidx.navigation:navigation-ui-ktx:2.3.5'
     implementation 'androidx.biometric:biometric:1.2.0-alpha04'
+    implementation 'androidx.work:work-runtime-ktx:2.5.0'
 
     //testing dependency
     testImplementation 'junit:junit:4.+'
@@ -72,6 +73,8 @@ dependencies {
     implementation "com.google.dagger:hilt-android:$hilt_version"
     kapt("com.google.dagger:hilt-android-compiler:$hilt_version")
 
-    // spotlight for user onboarding
-    implementation "com.github.takusemba:spotlight:$spotlight_version"
+    // java library for zip files
+    implementation 'net.lingala.zip4j:zip4j:2.10.0'
+
+    implementation 'com.google.code.gson:gson:2.3.1'
 }

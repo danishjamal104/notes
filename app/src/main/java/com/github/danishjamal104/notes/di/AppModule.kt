@@ -1,6 +1,7 @@
 package com.github.danishjamal104.notes.di
 
 import android.content.Context
+import androidx.work.WorkManager
 import com.github.danishjamal104.notes.ui.Notes
 import com.github.danishjamal104.notes.ui.fragment.home.adapter.NotesAdapter
 import com.github.danishjamal104.notes.util.sharedpreference.UserPreferences
@@ -57,6 +58,12 @@ object AppModule {
     @Provides
     fun provideNoteAdapter(@ApplicationContext context: Context): NotesAdapter {
         return NotesAdapter(context)
+    }
+
+    @Singleton
+    @Provides
+    fun provideWorkManager(@ApplicationContext context: Context): WorkManager {
+        return WorkManager.getInstance(context)
     }
 
 }

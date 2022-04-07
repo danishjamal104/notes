@@ -1,13 +1,18 @@
 package com.github.danishjamal104.notes.ui.fragment.home
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.View
+import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.github.danishjamal104.notes.R
+import com.github.danishjamal104.notes.backgroundtask.BackupWorker
 import com.github.danishjamal104.notes.data.model.Note
 import com.github.danishjamal104.notes.databinding.FragmentHomeBinding
 import com.github.danishjamal104.notes.ui.fragment.home.adapter.ItemClickListener
@@ -34,6 +39,9 @@ class HomeFragment : Fragment(R.layout.fragment_home), ItemClickListener<Note> {
 
     @Inject
     lateinit var adapter: NotesAdapter
+
+    @Inject
+    lateinit var workManager: WorkManager
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -87,6 +95,13 @@ class HomeFragment : Fragment(R.layout.fragment_home), ItemClickListener<Note> {
         }
         binding.swipeRefresh.setOnRefreshListener {
             viewModel.setEvent(HomeEvent.GetNotes)
+        }
+        binding.backup.setOnClickListener {
+            Log.i("mylog", "registerClickEvents: scheduling work")
+            val request = OneTimeWorkRequestBuilder<BackupWorker>()
+                .addTag("HOME FRAGMENT").build()
+            workManager.enqueue(request)
+            Log.i("mylog", "registerClickEvents:  enqueued work ${request.id}")
         }
     }
 
