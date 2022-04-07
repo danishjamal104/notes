@@ -98,6 +98,11 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
         binding.backButton.setOnClickListener {
             findNavController().navigate(R.id.action_noteFragment_to_homeFragment)
         }
+        binding.unlockButton.setOnClickListener {
+            performActionThroughSecuredChannel {
+                unlockData()
+            }
+        }
         registerTextWatcher()
     }
 
@@ -199,12 +204,16 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
         binding.noteTitle.disable()
     }
 
+    private fun enableEditableFields() {
+        binding.note.enable()
+        binding.noteTitle.enable()
+    }
+
     private fun handleFetchNoteSuccess(note: Note) {
         binding.progressBar.hide()
         enableButtons()
         this.note = note
         biometricPrompt()
-        setupScreenTimeout()
     }
 
     private fun handleEventResult(event: NoteState.EventResult) {
@@ -235,13 +244,17 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
     private fun lockData() {
         isScreenLocked = true
         binding.saveButton.gone()
+        binding.lockScreenContainer.visible()
         disableEditableFields()
         setData(note.value, note.title)
     }
 
     // this method replaces the encoded text with the original text on screen
     private fun unlockData() {
+        setupScreenTimeout()
         isScreenLocked = false
+        binding.lockScreenContainer.gone()
+        enableEditableFields()
         setData(note.value.decodeFromBase64(), note.title)
     }
 

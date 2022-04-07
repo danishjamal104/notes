@@ -5,6 +5,8 @@
     <color name="onPrimary">#E1E1E1</color>
     <color name="primaryDark">#E1E1E1</color>
 
+    <color name="primaryInactive">#DBC3C3C3</color>
+
     <color name="secondary">#63C2D2</color>
     <color name="secondaryVariant">#63C2D2</color>
     <color name="onSecondary">#63C2D2</color>
