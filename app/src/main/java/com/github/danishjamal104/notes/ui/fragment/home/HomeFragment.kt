@@ -6,7 +6,7 @@ import android.view.View
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import com.github.danishjamal104.notes.R
 import com.github.danishjamal104.notes.data.model.Note
 import com.github.danishjamal104.notes.databinding.FragmentHomeBinding
@@ -57,7 +57,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), ItemClickListener<Note> {
 
     private fun setupRecyclerView() {
         adapter.emptyView = binding.illustration
-        binding.noteList.layoutManager = LinearLayoutManager(requireContext())
+        binding.noteList.layoutManager = GridLayoutManager(requireContext(), 2)
         binding.noteList.setHasFixedSize(false)
         binding.noteList.adapter = adapter
 
