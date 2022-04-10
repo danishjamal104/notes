@@ -11,10 +11,10 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import com.github.danishjamal104.notes.data.backupandrestore.PassKeyProcessor
 import com.github.danishjamal104.notes.util.encryption.EncryptionHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import java.lang.RuntimeException
 import java.math.BigInteger
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
@@ -30,7 +30,7 @@ fun String.toSHA1(): String {
             hashtext = "0$hashtext"
         }
         return hashtext
-    }catch (e: NoSuchAlgorithmException) {
+    } catch (e: NoSuchAlgorithmException) {
         throw RuntimeException(e)
     }
 }
@@ -110,9 +110,14 @@ fun Fragment.hideKeyboard() {
 }
 
 @SuppressLint("NewApi")
-fun Fragment.performActionThroughSecuredChannel(error: (reason: String) -> Unit, success: () -> Unit, failed: () -> Unit) {
+fun Fragment.performActionThroughSecuredChannel(
+    error: (reason: String) -> Unit,
+    success: () -> Unit,
+    failed: () -> Unit
+) {
     val title = "Requires authentication"
-    val subtitle = "You are trying to access/perform secured content/task which require authentication"
+    val subtitle =
+        "You are trying to access/perform secured content/task which require authentication"
     val promptInfo = BiometricPrompt.PromptInfo.Builder()
         .setTitle(title)
         .setSubtitle(subtitle)
@@ -121,14 +126,17 @@ fun Fragment.performActionThroughSecuredChannel(error: (reason: String) -> Unit,
     val executor = ContextCompat.getMainExecutor(requireContext())
     val biometricPrompt = BiometricPrompt(this, executor,
         object : BiometricPrompt.AuthenticationCallback() {
-            override fun onAuthenticationError(errorCode: Int,
-                                               errString: CharSequence) {
+            override fun onAuthenticationError(
+                errorCode: Int,
+                errString: CharSequence
+            ) {
                 super.onAuthenticationError(errorCode, errString)
                 error.invoke(errString.toString())
             }
 
             override fun onAuthenticationSucceeded(
-                result: BiometricPrompt.AuthenticationResult) {
+                result: BiometricPrompt.AuthenticationResult
+            ) {
                 super.onAuthenticationSucceeded(result)
                 success.invoke()
             }
@@ -141,9 +149,34 @@ fun Fragment.performActionThroughSecuredChannel(error: (reason: String) -> Unit,
     biometricPrompt.authenticate(promptInfo)
 }
 
+fun Activity.performActionThroughSecuredChannel(success: () -> Unit) {
+    val title = "Requires authentication"
+    val subtitle =
+        "You are trying to access/perform secured content/task which require authentication"
+    val promptInfo = BiometricPrompt.PromptInfo.Builder()
+        .setTitle(title)
+        .setSubtitle(subtitle)
+        .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+        .build()
+    val executor = ContextCompat.getMainExecutor(this)
+    val biometricPrompt = BiometricPrompt(this as FragmentActivity, executor,
+        object : BiometricPrompt.AuthenticationCallback() {
+
+            override fun onAuthenticationSucceeded(
+                result: BiometricPrompt.AuthenticationResult
+            ) {
+                super.onAuthenticationSucceeded(result)
+                success.invoke()
+            }
+
+        })
+    biometricPrompt.authenticate(promptInfo)
+}
+
 fun Fragment.performActionThroughSecuredChannel(success: () -> Unit) {
     val title = "Requires authentication"
-    val subtitle = "You are trying to access/perform secured content/task which require authentication"
+    val subtitle =
+        "You are trying to access/perform secured content/task which require authentication"
     val promptInfo = BiometricPrompt.PromptInfo.Builder()
         .setTitle(title)
         .setSubtitle(subtitle)
@@ -152,14 +185,17 @@ fun Fragment.performActionThroughSecuredChannel(success: () -> Unit) {
     val executor = ContextCompat.getMainExecutor(requireContext())
     val biometricPrompt = BiometricPrompt(this, executor,
         object : BiometricPrompt.AuthenticationCallback() {
-            override fun onAuthenticationError(errorCode: Int,
-                                               errString: CharSequence) {
+            override fun onAuthenticationError(
+                errorCode: Int,
+                errString: CharSequence
+            ) {
                 super.onAuthenticationError(errorCode, errString)
                 shortToast("Authentication error: $errString")
             }
 
             override fun onAuthenticationSucceeded(
-                result: BiometricPrompt.AuthenticationResult) {
+                result: BiometricPrompt.AuthenticationResult
+            ) {
                 super.onAuthenticationSucceeded(result)
                 success.invoke()
             }

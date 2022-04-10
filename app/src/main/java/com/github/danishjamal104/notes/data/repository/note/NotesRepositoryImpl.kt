@@ -31,6 +31,17 @@ constructor(
         }
     }
 
+    override suspend fun insertNotes(notes: List<Note>): ServiceResult<Unit> {
+        return try {
+            notes.forEach {
+                cacheDataSource.addNote(it)
+            }
+            ServiceResult.Success(Unit)
+        } catch (e: Exception) {
+            ServiceResult.Error(""+e.localizedMessage)
+        }
+    }
+
     override suspend fun getNotes(): ServiceResult<List<Note>> {
         return try {
             val result = cacheDataSource.getNotes(userId)
