@@ -1,5 +1,6 @@
 package com.github.danishjamal104.notes.util
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.util.Base64
@@ -10,6 +11,8 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.github.danishjamal104.notes.data.backupandrestore.PassKeyProcessor
+import com.github.danishjamal104.notes.util.encryption.EncryptionHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.lang.RuntimeException
 import java.math.BigInteger
@@ -40,6 +43,18 @@ fun String.encodeToBase64(): String {
 fun String.decodeFromBase64(): String {
     val data = Base64.decode(this, Base64.DEFAULT)
     return String(data, StandardCharsets.UTF_8)
+}
+
+fun String.encrypt(secret: String): String {
+    val keyProcessor = PassKeyProcessor.load(secret, true)
+    val key = keyProcessor.getSecret()
+    return EncryptionHelper.encrypt(this, key, EncryptionHelper.generateIv(keyProcessor.ivString))
+}
+
+fun String.decrypt(secret: String): String {
+    val keyProcessor = PassKeyProcessor.load(secret, true)
+    val key = keyProcessor.getSecret()
+    return EncryptionHelper.decrypt(this, key, EncryptionHelper.generateIv(keyProcessor.ivString))
 }
 
 fun View.gone() {
@@ -94,6 +109,7 @@ fun Fragment.hideKeyboard() {
     view?.let { activity?.hideKeyboard(it) }
 }
 
+@SuppressLint("NewApi")
 fun Fragment.performActionThroughSecuredChannel(error: (reason: String) -> Unit, success: () -> Unit, failed: () -> Unit) {
     val title = "Requires authentication"
     val subtitle = "You are trying to access/perform secured content/task which require authentication"

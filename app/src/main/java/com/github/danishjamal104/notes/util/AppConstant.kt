@@ -5,4 +5,12 @@ object AppConstant {
     object Database {
         const val DB_NAME = "NOTES-ROOT-TABLE"
     }
+    object Worker {
+        const val KEY = "KEY"
+    }
+    object Notification {
+        const val CHANNEL_ID = "com.github.danishjamal104.notes.util.notification.channel.id"
+        const val CHANNEL_NAME = "Note Notification"
+        const val CHANNEL_DESCRIPTION = "Default notification channel for all Note notifications"
+    }
 }
