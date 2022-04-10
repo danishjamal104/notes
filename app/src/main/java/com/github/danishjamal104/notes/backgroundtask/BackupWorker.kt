@@ -27,6 +27,7 @@ import com.github.danishjamal104.notes.data.repository.note.NotesRepositoryImpl
 import com.github.danishjamal104.notes.ui.main.MainActivity
 import com.github.danishjamal104.notes.util.*
 import com.github.danishjamal104.notes.util.encryption.EncryptionHelper
+import com.github.danishjamal104.notes.util.sharedpreference.EncryptionPreferences
 import com.github.danishjamal104.notes.util.sharedpreference.UserPreferences
 import net.lingala.zip4j.ZipFile
 import net.lingala.zip4j.model.ZipParameters
@@ -51,11 +52,14 @@ class BackupWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx
     private val _userPreferences = UserPreferences(applicationContext)
     private val userPreferences get() = _userPreferences
 
+    private val _encryptionPreferences = EncryptionPreferences(applicationContext, userPreferences)
+    private val encryptionPreferences = _encryptionPreferences
+
     private val _cacheDataSource =  CacheDataSourceImpl(UserMapper(),
         NoteMapper(), userDao, noteDao)
     private val cacheDataSource get() = _cacheDataSource
 
-    private val _noteRepository = NotesRepositoryImpl(cacheDataSource, userPreferences)
+    private val _noteRepository = NotesRepositoryImpl(cacheDataSource, userPreferences, encryptionPreferences)
     private val notesRepository = _noteRepository
 
     private lateinit var keyProcessor: PassKeyProcessor
@@ -67,6 +71,9 @@ class BackupWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx
         val key = inputData.getString(AppConstant.Worker.KEY) ?: return Result.failure()
         keyProcessor = PassKeyProcessor.load(key)
         val notes = getAllNotes()
+        if(notes.isEmpty()) {
+            return Result.failure()
+        }
         val data = BackupHelper.createBackupData(notes, key)
         storeBackupToFile("$id", data)
         makeSuccessNotification()

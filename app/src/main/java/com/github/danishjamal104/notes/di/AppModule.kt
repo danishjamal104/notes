@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.work.WorkManager
 import com.github.danishjamal104.notes.ui.Notes
 import com.github.danishjamal104.notes.ui.fragment.home.adapter.NotesAdapter
+import com.github.danishjamal104.notes.util.sharedpreference.EncryptionPreferences
 import com.github.danishjamal104.notes.util.sharedpreference.UserPreferences
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -30,6 +31,13 @@ object AppModule {
     @Provides
     fun providesUserPreferences(@ApplicationContext context: Context): UserPreferences {
         return UserPreferences(context)
+    }
+
+    @Singleton
+    @Provides
+    fun providesEncryptionPreferences(@ApplicationContext context: Context,
+    userPreferences: UserPreferences): EncryptionPreferences {
+        return EncryptionPreferences(context, userPreferences)
     }
 
     @Singleton

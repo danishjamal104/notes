@@ -12,9 +12,11 @@ import com.github.danishjamal104.notes.R
 import com.github.danishjamal104.notes.data.model.Note
 import com.github.danishjamal104.notes.databinding.FragmentNoteBinding
 import com.github.danishjamal104.notes.util.*
+import com.github.danishjamal104.notes.util.sharedpreference.EncryptionPreferences
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 import kotlin.concurrent.schedule
 
 @AndroidEntryPoint
@@ -26,6 +28,9 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
     @SuppressLint("SimpleDateFormat")
     private val sdf = SimpleDateFormat("MMM dd, yyyy")
     private val date get() = sdf.format(Date())
+
+    @Inject
+    lateinit var encryptionPreferences: EncryptionPreferences
 
     private val viewModel: NoteViewModel by viewModels()
 
@@ -50,6 +55,7 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
         noteId?.let {
             if(it==-1) {
                 enableButtons()
+                binding.lockScreenContainer.gone()
                 return
             }
             viewModel.setEvent(NoteEvent.GetNote(it))
@@ -255,7 +261,7 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
         isScreenLocked = false
         binding.lockScreenContainer.gone()
         enableEditableFields()
-        setData(note.value.decodeFromBase64(), note.title)
+        setData(note.value.decrypt(encryptionPreferences.key), note.title)
     }
 
     private fun setData(noteData: String, noteTitle: String) {

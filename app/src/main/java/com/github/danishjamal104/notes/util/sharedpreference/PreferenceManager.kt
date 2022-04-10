@@ -41,7 +41,8 @@ abstract class PreferenceManager(var context: Context) {
 
 }
 
-enum class Key(val value: String) {
-    USERID("USER-ID"),
-    AUTHSTATE("IS-AUTHENTICATED")
+sealed class Key(val value: String) {
+    object USERID: Key("USER-ID")
+    object AUTHSTATE: Key("IS-AUTHENTICATED")
+    data class Custom(val key: String): Key(key)
 }

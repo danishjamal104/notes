@@ -3,7 +3,8 @@ package com.github.danishjamal104.notes.data.repository.note
 import com.github.danishjamal104.notes.data.local.CacheDataSource
 import com.github.danishjamal104.notes.data.model.Note
 import com.github.danishjamal104.notes.util.ServiceResult
-import com.github.danishjamal104.notes.util.encodeToBase64
+import com.github.danishjamal104.notes.util.encrypt
+import com.github.danishjamal104.notes.util.sharedpreference.EncryptionPreferences
 import com.github.danishjamal104.notes.util.sharedpreference.UserPreferences
 import java.lang.Exception
 import java.util.*
@@ -11,16 +12,17 @@ import java.util.*
 class NotesRepositoryImpl
 constructor(
     private val cacheDataSource: CacheDataSource,
-    private val userPreferences: UserPreferences
+    private val userPreferences: UserPreferences,
+    private val encryptionPreferences: EncryptionPreferences
 ): NotesRepository{
 
     private val userId get() = userPreferences.getUserId()
 
 
     override suspend fun createNote(noteText: String, noteTitle: String?): ServiceResult<Unit> {
-        val encodedNoteText = noteText.encodeToBase64()
-        val title = noteTitle.let { it } ?: ""
-        val note = Note(-1, userId, encodedNoteText, title, Date().time)
+        val encryptedNoteText = noteText.encrypt(encryptionPreferences.key)
+        val title = noteTitle ?: ""
+        val note = Note(-1, userId, encryptedNoteText, title, Date().time)
         return try {
             cacheDataSource.addNote(note)
             ServiceResult.Success(Unit)
@@ -48,7 +50,7 @@ constructor(
     }
 
     override suspend fun updateNote(note: Note): ServiceResult<Note> {
-        note.value = note.value.encodeToBase64()
+        note.value = note.value.encrypt(encryptionPreferences.key)
         return try {
             when(cacheDataSource.updateNote(note)) {
                 0 -> ServiceResult.Error("Updating failed ")
