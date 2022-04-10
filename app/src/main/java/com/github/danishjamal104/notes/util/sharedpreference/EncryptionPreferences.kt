@@ -21,12 +21,14 @@ constructor(@ApplicationContext context: Context,
         var encryptionKey = fetchKey(userId)
         return if(encryptionKey == "") {
             Log.i("homew", "Generating and inserting new")
-            putKey(userId, EncryptionHelper.generateEncryptionKey())
+            val newKey = EncryptionHelper.generateEncryptionKey(
+                userId.substring(0, userId.length/2),
+                userId.takeLast(16)
+            )
+            putKey(userId, newKey)
             getEncryptionKey()
         } else {
             encryptionKey
         }
     }
-
-
 }
