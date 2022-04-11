@@ -14,6 +14,8 @@ import androidx.work.WorkManager
 import com.github.danishjamal104.notes.backgroundtask.RestoreWorker
 import com.github.danishjamal104.notes.databinding.ActivityMainBinding
 import com.github.danishjamal104.notes.util.AppConstant
+import com.github.danishjamal104.notes.util.copyToClipboard
+import com.github.danishjamal104.notes.util.longToast
 import com.github.danishjamal104.notes.util.performActionThroughSecuredChannel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -33,13 +35,17 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        intent.getStringExtra(AppConstant.IntentExtra.ENCRYPTION_KEY)?.let {
+            this.copyToClipboard(it)
+            this.longToast("Encryption Key copied to clipboard")
+        }
         launcher = requestFile(this) {
             it?.let { it1 -> restoreBackup(it1) }
         }
     }
 
     private fun restoreBackup(uri: Uri) {
-        val key = "Tkgza0-VNWlU4-LVBOWV-pnd3ho-SUF3T2-9pTkc"
+        val key = "test-key"
 
         performActionThroughSecuredChannel {
             val data = Data.Builder()

@@ -17,4 +17,7 @@ object AppConstant {
         const val CHANNEL_NAME = "Note Notification"
         const val CHANNEL_DESCRIPTION = "Default notification channel for all Note notifications"
     }
+    object IntentExtra {
+        const val ENCRYPTION_KEY = "ENCRYPTION-KEY"
+    }
 }

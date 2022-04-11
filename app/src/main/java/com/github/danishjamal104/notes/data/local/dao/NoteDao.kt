@@ -15,6 +15,9 @@ interface NoteDao {
     @Query("SELECT * FROM notes WHERE userId = :userId AND id = :id")
     suspend fun getNote(id: Int, userId: String): List<NoteCacheEntity>
 
+    @Query("DELETE FROM notes WHERE userId = :userId")
+    suspend fun deleteAllNoteOfUser(userId: String): Int
+
     @Update
     suspend fun updateNote(noteCacheEntity: NoteCacheEntity): Int
 

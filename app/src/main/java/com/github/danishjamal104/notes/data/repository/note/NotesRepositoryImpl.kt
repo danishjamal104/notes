@@ -31,6 +31,15 @@ constructor(
         }
     }
 
+    override suspend fun insertNote(note: Note): ServiceResult<Unit> {
+        return try {
+            cacheDataSource.addNote(note)
+            ServiceResult.Success(Unit)
+        } catch (e: Exception) {
+            ServiceResult.Error(""+e.localizedMessage)
+        }
+    }
+
     override suspend fun insertNotes(notes: List<Note>): ServiceResult<Unit> {
         return try {
             notes.forEach {
@@ -84,4 +93,16 @@ constructor(
             ServiceResult.Error(""+e.localizedMessage)
         }
     }
+
+    override suspend fun deleteAllNotes(): ServiceResult<Unit> {
+        return try {
+            when(cacheDataSource.deleteAllNote(userId)) {
+                in 0..Int.MAX_VALUE -> ServiceResult.Success(Unit)
+                else -> ServiceResult.Error("Deletion failed")
+            }
+        } catch (e: Exception) {
+            ServiceResult.Error(""+e.localizedMessage)
+        }
+    }
+
 }

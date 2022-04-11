@@ -63,4 +63,8 @@ constructor(
         cacheNoteEntity.id = note.id
         return noteDao.deleteNote(cacheNoteEntity)
     }
+
+    override suspend fun deleteAllNote(userId: String): Int {
+        return noteDao.deleteAllNoteOfUser(userId)
+    }
 }

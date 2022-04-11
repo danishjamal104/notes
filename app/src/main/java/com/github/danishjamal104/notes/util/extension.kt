@@ -2,6 +2,8 @@ package com.github.danishjamal104.notes.util
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.util.Base64
 import android.view.View
@@ -77,12 +79,20 @@ fun View.enable() {
     this.isEnabled = true
 }
 
+fun Context.shortToast(message: String) {
+    Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+}
+
+fun Context.longToast(message: String) {
+    Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+}
+
 fun Fragment.shortToast(message: String) {
-    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+    requireContext().shortToast(message)
 }
 
 fun Fragment.longToast(message: String) {
-    Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+    requireContext().longToast(message)
 }
 
 fun Context.showDefaultMaterialAlert(
@@ -107,6 +117,13 @@ fun Activity.hideKeyboard() {
 
 fun Fragment.hideKeyboard() {
     view?.let { activity?.hideKeyboard(it) }
+}
+
+fun Context.copyToClipboard(text: String) {
+    val clipboard: ClipboardManager? =
+        this.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
+    val clip = ClipData.newPlainText("COPIED", text)
+    clipboard?.setPrimaryClip(clip)
 }
 
 @SuppressLint("NewApi")

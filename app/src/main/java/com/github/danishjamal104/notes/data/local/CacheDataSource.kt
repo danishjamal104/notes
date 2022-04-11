@@ -13,4 +13,5 @@ interface CacheDataSource {
     suspend fun getNote(id: Int, userId: String): Note
     suspend fun updateNote(note: Note): Int
     suspend fun deleteNote(note: Note): Int
+    suspend fun deleteAllNote(userId: String): Int
 }

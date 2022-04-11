@@ -15,10 +15,12 @@ import androidx.work.ForegroundInfo
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.github.danishjamal104.notes.R
+import com.github.danishjamal104.notes.data.local.CacheDataSource
 import com.github.danishjamal104.notes.data.local.CacheDataSourceImpl
 import com.github.danishjamal104.notes.data.local.Database
 import com.github.danishjamal104.notes.data.mapper.NoteMapper
 import com.github.danishjamal104.notes.data.mapper.UserMapper
+import com.github.danishjamal104.notes.data.repository.note.NotesRepository
 import com.github.danishjamal104.notes.data.repository.note.NotesRepositoryImpl
 import com.github.danishjamal104.notes.ui.main.MainActivity
 import com.github.danishjamal104.notes.util.AppConstant
@@ -45,10 +47,24 @@ abstract class BaseCoroutineNoteWorker(ctx: Context, params: WorkerParameters) :
     private val _cacheDataSource =  CacheDataSourceImpl(
         UserMapper(),
         NoteMapper(), userDao, noteDao)
-    private val cacheDataSource get() = _cacheDataSource
+    private val cacheDataSource: CacheDataSource = _cacheDataSource
 
     private val _noteRepository = NotesRepositoryImpl(cacheDataSource, userPreferences, encryptionPreferences)
-    protected val notesRepository = _noteRepository
+    protected val notesRepository: NotesRepository = _noteRepository
+
+    var progressNotificationTitle = "BackupRestore Task"
+    private val maxProgress = 100
+    private var progress = 0
+
+    private val notifyId = System.currentTimeMillis().toInt()
+
+    /**
+     * Updates the notification progress
+     */
+    suspend fun updateProgress(updateBy: Int = 0) {
+        progress = if (progress+updateBy > 100) 100 else progress + updateBy
+        setForeground(makeStatusNotification(progressNotificationTitle,  notifyId))
+    }
 
     /**
      * Shows default notification with [title] and [message]
@@ -93,7 +109,7 @@ abstract class BaseCoroutineNoteWorker(ctx: Context, params: WorkerParameters) :
      * @param message message to be displayed in notification
      * @param id Notification id
      */
-    protected fun makeStatusNotification(title: String, message: String, id: Int): ForegroundInfo {
+    private fun makeStatusNotification(title: String, id: Int): ForegroundInfo {
         val context = applicationContext
         // Make a channel if necessary
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -119,14 +135,12 @@ abstract class BaseCoroutineNoteWorker(ctx: Context, params: WorkerParameters) :
         val builder = NotificationCompat.Builder(context, AppConstant.Notification.CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle(title)
-            .setContentText(message)
+            .setContentText("Completed $progress%")
             .setContentIntent(pendingIntent)
-            .setProgress(0, 0, true)
+            .setProgress(maxProgress, progress, false)
             .setOngoing(true)
             .addAction(android.R.drawable.ic_delete, "Cancel", cancelIntent)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(message))
-            .setVibrate(LongArray(0))
 
         return ForegroundInfo(id, builder.build())
     }
