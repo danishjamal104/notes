@@ -106,18 +106,6 @@
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/backup"
-        style="@style/Widget.App.FloatingActionButton.Circular"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="32dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/ic_baseline_arrow_back_24"
-        android:contentDescription="@string/backup_button"
-        android:visibility="gone"/>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
         style="@style/Widget.App.FloatingActionButton.Circular"
         android:id="@+id/add_note"
         android:layout_width="wrap_content"

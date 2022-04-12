@@ -1,25 +1,19 @@
 package com.github.danishjamal104.notes.ui.fragment.home
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.work.Data
-import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.github.danishjamal104.notes.R
-import com.github.danishjamal104.notes.backgroundtask.BackupWorker
 import com.github.danishjamal104.notes.data.model.Note
 import com.github.danishjamal104.notes.databinding.FragmentHomeBinding
 import com.github.danishjamal104.notes.ui.fragment.home.adapter.ItemClickListener
 import com.github.danishjamal104.notes.ui.fragment.home.adapter.NotesAdapter
-import com.github.danishjamal104.notes.ui.main.MainActivity
 import com.github.danishjamal104.notes.util.*
-import com.github.danishjamal104.notes.util.encryption.EncryptionHelper
 import com.github.danishjamal104.notes.util.sharedpreference.UserPreferences
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import dagger.hilt.android.AndroidEntryPoint
@@ -97,18 +91,6 @@ class HomeFragment : Fragment(R.layout.fragment_home), ItemClickListener<Note> {
         }
         binding.swipeRefresh.setOnRefreshListener {
             viewModel.setEvent(HomeEvent.GetNotes)
-        }
-        binding.backup.setOnClickListener {
-            //(requireActivity() as MainActivity).openRestoreFile()
-            performActionThroughSecuredChannel {
-                val key = EncryptionHelper.generateEncryptionKey()
-                Log.i("SECUREDINFO", key)
-                val data = Data.Builder().putString(AppConstant.Worker.KEY, key).build()
-                val request = OneTimeWorkRequestBuilder<BackupWorker>()
-                    .addTag("HOME FRAGMENT")
-                    .setInputData(data).build()
-                workManager.enqueue(request)
-            }
         }
     }
 

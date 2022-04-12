@@ -39,7 +39,12 @@ class RestoreWorker(ctx: Context, params: WorkerParameters) : BaseCoroutineNoteW
         fileUri = Uri.parse(fileUriString)
         filePath = getFilePath(fileUri) ?: return Result.failure()
         fileName = getFileName(fileUri) ?: return Result.failure()
-        passKeyProcessor = PassKeyProcessor.load(key)
+        try {
+            passKeyProcessor = PassKeyProcessor.load(key)
+        } catch (e: Exception) {
+            makeDefaultTextNotification("Restore Failed", "Corrupted encryption key")
+            return Result.failure()
+        }
         updateProgress(5)
         restore()
         return Result.success()

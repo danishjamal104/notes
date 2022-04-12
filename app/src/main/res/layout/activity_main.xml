@@ -19,34 +19,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:navGraph="@navigation/nav_graph" />
 
-    <Button
-        android:id="@+id/backup_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
-        android:backgroundTint="@color/always_white"
-        android:scaleX="0"
-        android:scaleY="0"
-        android:text="@string/backup"
-        android:textColor="@color/always_black"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/restore_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
-        android:backgroundTint="@color/always_white"
-        android:scaleX="0"
-        android:scaleY="0"
-        android:text="@string/restore"
-        android:textColor="@color/always_black"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
     <RelativeLayout
         android:id="@+id/relativeLayout"
         android:layout_width="102dp"
@@ -57,8 +29,8 @@
         android:translationX="-32dp"
         android:translationY="32dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
+        app:layout_constraintStart_toStartOf="parent"
+        android:clickable="false">
 
         <ImageView
             android:layout_width="wrap_content"
@@ -66,10 +38,39 @@
             android:padding="28dp"
             android:rotation="45"
             android:src="@drawable/ic_baseline_backup_24"
-            app:tint="@color/always_black" />
-
+            app:tint="@color/always_black"
+            android:contentDescription="@string/backup_and_restore_menu"/>
 
     </RelativeLayout>
+
+    <Button
+        android:id="@+id/backup_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:layout_marginEnd="32dp"
+        android:backgroundTint="@color/always_white"
+        android:scaleX="0"
+        android:scaleY="0"
+        android:text="@string/backup"
+        android:textColor="@color/always_black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:translationZ="1dp"/>
+
+    <Button
+        android:id="@+id/restore_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:layout_marginEnd="32dp"
+        android:backgroundTint="@color/always_white"
+        android:scaleX="0"
+        android:scaleY="0"
+        android:text="@string/restore"
+        android:textColor="@color/always_black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 
 </androidx.constraintlayout.motion.widget.MotionLayout>

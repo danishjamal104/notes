@@ -7,11 +7,17 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.util.Base64
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
+import androidx.core.view.marginBottom
+import androidx.core.view.marginLeft
+import androidx.core.view.marginRight
+import androidx.core.view.marginTop
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.github.danishjamal104.notes.data.backupandrestore.PassKeyProcessor
@@ -124,6 +130,17 @@ fun Context.copyToClipboard(text: String) {
         this.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
     val clip = ClipData.newPlainText("COPIED", text)
     clipboard?.setPrimaryClip(clip)
+}
+
+fun View.setMargins(
+    left: Int = this.marginLeft,
+    top: Int = this.marginTop,
+    right: Int = this.marginRight,
+    bottom: Int = this.marginBottom,
+) {
+    layoutParams = (layoutParams as RelativeLayout.LayoutParams).apply {
+        setMargins(left, top, right, bottom)
+    }
 }
 
 @SuppressLint("NewApi")

@@ -18,4 +18,5 @@
     <string name="backup_button">Backup Button</string>
     <string name="backup">Backup</string>
     <string name="restore">Restore</string>
+    <string name="backup_and_restore_menu">Backup And Restore Menu</string>
 </resources>
