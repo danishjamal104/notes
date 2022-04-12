@@ -108,7 +108,7 @@ fun Context.showDefaultMaterialAlert(
 ) {
     MaterialAlertDialogBuilder(this)
         .setTitle(title).setMessage(message)
-        .setPositiveButton("Yes") { _, _ -> positiveButtonPress() }
+        .setPositiveButton("Yes") { _, _ -> positiveButtonPress.invoke() }
         .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }.create().show()
 }
 

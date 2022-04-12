@@ -63,8 +63,17 @@ class MainActivity : AppCompatActivity() {
         launcher = requestFile(this) {
             it?.let { uri ->
                 takeEncryptionKeyInput { key ->
-                    restoreBackup(uri, key)
-                    shortToast("Restore scheduled")
+                    if (key.isEmpty()) {
+                        shortToast("Empty encryption key")
+                        return@takeEncryptionKeyInput
+                    }
+                    this.showDefaultMaterialAlert(
+                        "Confirmation",
+                        "You are about to restore the notes from backup. This will remove all the existing notes."
+                    ) {
+                        restoreBackup(uri, key)
+                        shortToast("Restore scheduled")
+                    }
                 }
             }
         }
