@@ -8,15 +8,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import com.github.danishjamal104.notes.R
 import com.github.danishjamal104.notes.backgroundtask.RestoreWorker
 import com.github.danishjamal104.notes.databinding.ActivityMainBinding
-import com.github.danishjamal104.notes.util.AppConstant
-import com.github.danishjamal104.notes.util.copyToClipboard
-import com.github.danishjamal104.notes.util.longToast
-import com.github.danishjamal104.notes.util.performActionThroughSecuredChannel
+import com.github.danishjamal104.notes.util.*
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -25,6 +25,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var _binding: ActivityMainBinding
     private val binding get() = _binding
+
+    private lateinit var navController: NavController
 
     @Inject
     lateinit var workManager: WorkManager
@@ -39,9 +41,29 @@ class MainActivity : AppCompatActivity() {
             this.copyToClipboard(it)
             this.longToast("Encryption Key copied to clipboard")
         }
+        val hostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_container)
+        if (hostFragment is NavHostFragment)
+            navController = hostFragment.navController
         launcher = requestFile(this) {
             it?.let { it1 -> restoreBackup(it1) }
         }
+
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.authenticationFragment -> hideMotionLayout()
+                R.id.homeFragment -> showMotionLayout()
+            }
+        }
+    }
+
+    private fun showMotionLayout() {
+        binding.root.getTransition(R.id.start_to_end).isEnabled = true
+        binding.relativeLayout.visible()
+    }
+
+    private fun hideMotionLayout() {
+        binding.root.getTransition(R.id.start_to_end).isEnabled = false
+        binding.relativeLayout.gone()
     }
 
     private fun restoreBackup(uri: Uri) {

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionScene 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:motion="http://schemas.android.com/apk/res-auto">
+
+    <Transition
+        android:id="@+id/start_to_end"
+        motion:constraintSetEnd="@+id/end"
+        motion:constraintSetStart="@id/start"
+        motion:duration="1000"
+        motion:motionInterpolator="cubic(0.21,0.19,0.61,0.59)">
+       <KeyFrameSet>
+           <KeyAttribute
+               motion:motionTarget="@+id/relativeLayout"
+               motion:framePosition="0"
+               android:alpha="0.5" />
+           <KeyAttribute
+               motion:motionTarget="@+id/relativeLayout"
+               motion:framePosition="32"
+               android:alpha="0.0" />
+       </KeyFrameSet>
+        <OnSwipe
+            motion:touchAnchorId="@+id/relativeLayout"
+            motion:touchRegionId="@+id/relativeLayout"
+            motion:dragDirection="dragRight"
+            motion:dragThreshold="1"
+            motion:springMass="5.3"
+            motion:springStiffness="710.99"
+            motion:springDamping="33.333"
+            motion:springStopThreshold="0.1298"
+            motion:maxAcceleration="0.1"
+            motion:maxVelocity="4.38" />
+    </Transition>
+
+    <ConstraintSet android:id="@+id/start">
+    </ConstraintSet>
+
+    <ConstraintSet android:id="@+id/end">
+        <Constraint
+            android:id="@+id/nav_host_fragment_container"
+            motion:layout_constraintEnd_toEndOf="parent"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintTop_toTopOf="parent"
+            motion:layout_constraintStart_toStartOf="parent"
+            android:scaleX="0.5"
+            android:scaleY="0.5"
+            android:translationX="100dp"
+            android:translationY="-180dp" />
+        <Constraint
+            android:id="@+id/relativeLayout"
+            android:layout_width="207dp"
+            android:layout_height="355dp"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintStart_toStartOf="parent"
+            motion:layout_editor_absoluteY="376dp"
+            android:visibility="invisible" />
+        <Constraint
+            android:id="@+id/backup_button"
+            android:scaleX="1"
+            motion:layout_constraintEnd_toEndOf="parent"
+            android:scaleY="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="32dp"
+            motion:layout_constraintStart_toStartOf="parent" />
+        <Constraint
+            android:id="@+id/restore_button"
+            android:scaleX="1"
+            android:scaleY="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="102dp"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintEnd_toEndOf="parent"
+            motion:layout_constraintStart_toStartOf="parent" />
+    </ConstraintSet>
+</MotionScene>
