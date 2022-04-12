@@ -11,6 +11,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.work.Data
@@ -71,8 +72,48 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        binding.backupButton.bringToFront()
-        binding.restoreButton.bringToFront()
+        binding.root.addTransitionListener(object : MotionLayout.TransitionListener {
+            override fun onTransitionStarted(
+                motionLayout: MotionLayout?,
+                startId: Int,
+                endId: Int
+            ) {
+            }
+
+            override fun onTransitionChange(
+                motionLayout: MotionLayout?,
+                startId: Int,
+                endId: Int,
+                progress: Float
+            ) {
+            }
+
+            override fun onTransitionCompleted(motionLayout: MotionLayout?, currentId: Int) {
+                when (currentId) {
+                    R.id.start -> {
+                        // layout reached start position
+                        binding.backupButton.disable()
+                        binding.restoreButton.disable()
+                    }
+                    R.id.end -> {
+                        binding.backupButton.enable()
+                        binding.restoreButton.enable()
+                    }
+                }
+            }
+
+            override fun onTransitionTrigger(
+                motionLayout: MotionLayout?,
+                triggerId: Int,
+                positive: Boolean,
+                progress: Float
+            ) {
+            }
+
+        })
+        binding.backupButton.disable()
+        binding.restoreButton.disable()
+
         // setting up click listener
         binding.backupButton.setOnClickListener {
             performActionThroughSecuredChannel {

@@ -33,6 +33,27 @@
     </Transition>
 
     <ConstraintSet android:id="@+id/start">
+        <Constraint
+            android:id="@+id/backup_button"
+            android:scaleX="0"
+            motion:layout_constraintEnd_toEndOf="parent"
+            android:scaleY="0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="32dp"
+            android:layout_marginEnd="96dp"
+            android:translationZ="1dp" />
+        <Constraint
+            android:id="@+id/restore_button"
+            android:scaleX="0"
+            android:scaleY="0"
+            motion:layout_constraintEnd_toEndOf="parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="32dp"
+            android:layout_marginEnd="96dp" />
     </ConstraintSet>
 
     <ConstraintSet android:id="@+id/end">
