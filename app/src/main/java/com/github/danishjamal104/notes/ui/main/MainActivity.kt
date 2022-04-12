@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
+import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -67,8 +68,21 @@ class MainActivity : AppCompatActivity() {
         // disable motion layout in auth fragment
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
-                R.id.authenticationFragment -> hideMotionLayout()
-                R.id.homeFragment -> showMotionLayout()
+                R.id.authenticationFragment -> {
+                    Log.i("customnav", "Auth destination")
+                    hideMotionLayout()
+                    Log.i("customnav", "" + binding.relativeLayout.visibility)
+                }
+                R.id.homeFragment -> {
+                    showMotionLayout()
+                    Log.i("customnav", "Home destination")
+                    Log.i("customnav", "" + binding.relativeLayout.visibility)
+                }
+                else -> {
+                    Log.i("customnav", "Else destination")
+                    showMotionLayout()
+                    Log.i("customnav", "" + binding.relativeLayout.visibility)
+                }
             }
         }
 
@@ -133,14 +147,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun resetMotionLayout() {
+        binding.root.transitionToStart()
+    }
+
     private fun showMotionLayout() {
         binding.root.getTransition(R.id.start_to_end).isEnabled = true
-        binding.relativeLayout.visible()
+        binding.backupRestoreImage.visibility = View.VISIBLE
     }
 
     private fun hideMotionLayout() {
         binding.root.getTransition(R.id.start_to_end).isEnabled = false
-        binding.relativeLayout.gone()
+        binding.backupRestoreImage.visibility = View.GONE
     }
 
     private fun takeEncryptionKeyInput(result: (key: String) -> Unit) {

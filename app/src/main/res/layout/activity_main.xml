@@ -23,7 +23,6 @@
         android:id="@+id/relativeLayout"
         android:layout_width="102dp"
         android:layout_height="102dp"
-        android:background="@drawable/circle"
         android:gravity="top|end"
         android:textAlignment="gravity"
         android:translationX="-32dp"
@@ -33,13 +32,16 @@
         android:clickable="false">
 
         <ImageView
+            android:id="@+id/backup_restore_image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="28dp"
             android:rotation="45"
             android:src="@drawable/ic_baseline_backup_24"
             app:tint="@color/always_black"
-            android:contentDescription="@string/backup_and_restore_menu"/>
+            android:background="@drawable/circle"
+            android:contentDescription="@string/backup_and_restore_menu"
+            android:alpha="0.5"/>
 
     </RelativeLayout>
 

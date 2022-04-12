@@ -76,7 +76,7 @@
             motion:layout_constraintBottom_toBottomOf="parent"
             motion:layout_constraintStart_toStartOf="parent"
             motion:layout_editor_absoluteY="376dp"
-            android:visibility="invisible" />
+            android:alpha="0"/>
         <Constraint
             android:id="@+id/backup_button"
             android:scaleX="1"

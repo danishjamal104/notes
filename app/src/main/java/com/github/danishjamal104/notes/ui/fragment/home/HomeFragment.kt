@@ -13,6 +13,7 @@ import com.github.danishjamal104.notes.data.model.Note
 import com.github.danishjamal104.notes.databinding.FragmentHomeBinding
 import com.github.danishjamal104.notes.ui.fragment.home.adapter.ItemClickListener
 import com.github.danishjamal104.notes.ui.fragment.home.adapter.NotesAdapter
+import com.github.danishjamal104.notes.ui.main.MainActivity
 import com.github.danishjamal104.notes.util.*
 import com.github.danishjamal104.notes.util.sharedpreference.UserPreferences
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -80,9 +81,11 @@ class HomeFragment : Fragment(R.layout.fragment_home), ItemClickListener<Note> {
 
     private fun registerClickEvents() {
         binding.addNote.setOnClickListener {
+            (requireActivity() as MainActivity).resetMotionLayout()
             findNavController().navigate(R.id.action_homeFragment_to_noteFragment)
         }
         binding.actionButton.setOnClickListener {
+            (requireActivity() as MainActivity).resetMotionLayout()
             val title = getString(R.string.confirm)
             val message = getString(R.string.logout_alert_message)
             requireContext().showDefaultMaterialAlert(title, message) {
