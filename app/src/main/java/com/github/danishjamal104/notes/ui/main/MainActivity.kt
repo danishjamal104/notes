@@ -5,8 +5,11 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.InputType
+import android.text.TextUtils
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -24,6 +27,7 @@ import com.github.danishjamal104.notes.backgroundtask.RestoreWorker
 import com.github.danishjamal104.notes.databinding.ActivityMainBinding
 import com.github.danishjamal104.notes.util.*
 import com.github.danishjamal104.notes.util.encryption.EncryptionHelper
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -162,12 +166,29 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun takeEncryptionKeyInput(result: (key: String) -> Unit) {
-        val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+        val builder: AlertDialog.Builder = MaterialAlertDialogBuilder(this)
         builder.setTitle("Enter encryption key")
 
         val input = TextInputEditText(this)
-        input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-        builder.setView(input)
+        input.inputType = InputType.TYPE_CLASS_TEXT
+        input.isSingleLine = true
+        input.ellipsize = TextUtils.TruncateAt.END
+
+        val container = FrameLayout(this)
+        val params = FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ).apply {
+            val side = resources.getDimensionPixelSize(R.dimen.dialog_edit_text_margin_horizontal)
+            val topBottom =
+                resources.getDimensionPixelSize(R.dimen.dialog_edit_text_margin_vertical)
+            setMargins(side, topBottom, side, topBottom)
+        }
+        input.layoutParams = params
+
+        container.addView(input)
+
+        builder.setView(container)
         builder.setPositiveButton(
             "OK"
         ) { _, _ ->

@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="root_side_margin">18dp</dimen>
+    <dimen name="dialog_edit_text_margin_horizontal">22dp</dimen>
+    <dimen name="dialog_edit_text_margin_vertical">22dp</dimen>
 </resources>
