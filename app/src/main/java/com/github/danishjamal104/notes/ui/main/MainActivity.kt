@@ -82,19 +82,13 @@ class MainActivity : AppCompatActivity() {
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
                 R.id.authenticationFragment -> {
-                    Log.i("customnav", "Auth destination")
                     hideMotionLayout()
-                    Log.i("customnav", "" + binding.relativeLayout.visibility)
                 }
                 R.id.homeFragment -> {
                     showMotionLayout()
-                    Log.i("customnav", "Home destination")
-                    Log.i("customnav", "" + binding.relativeLayout.visibility)
                 }
                 else -> {
-                    Log.i("customnav", "Else destination")
-                    showMotionLayout()
-                    Log.i("customnav", "" + binding.relativeLayout.visibility)
+                    hideMotionLayout()
                 }
             }
         }
