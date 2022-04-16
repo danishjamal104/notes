@@ -28,4 +28,6 @@
     <color name="mustard">#dea44d</color>
     <color name="brown">#9e5c32</color>
 
+    <color name="chip_background">#2B2B2B</color>
+
 </resources>

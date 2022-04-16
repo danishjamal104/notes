@@ -15,4 +15,6 @@
     <color name="black">#fff</color>
 
     <color name="bright_grey">#959595</color>
+
+    <color name="chip_background">#2B2B2B</color>
 </resources>

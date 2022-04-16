@@ -13,6 +13,7 @@ import com.github.danishjamal104.notes.data.model.Note
 import com.github.danishjamal104.notes.databinding.FragmentNoteBinding
 import com.github.danishjamal104.notes.util.*
 import com.github.danishjamal104.notes.util.sharedpreference.EncryptionPreferences
+import com.google.android.material.chip.Chip
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.*
@@ -189,6 +190,21 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
         if (noteValueUpdate) { note.value = newText }
         if (titleUpdate) { note.title = newTitle }
         viewModel.setEvent(NoteEvent.UpdateNote(note))
+    }
+
+    // adds the chip in the chip group
+    private fun updateLabels(labels: List<String>) {
+        labels.forEach {
+            val chip = Chip(requireContext())
+            chip.text = it
+            chip.isCheckable = false
+            chip.setChipBackgroundColorResource(R.color.chip_background)
+            chip.setOnLongClickListener {
+                binding.chipGroup.removeView(chip)
+                return@setOnLongClickListener true
+            }
+            binding.chipGroup.addView(chip, 0)
+        }
     }
 
     private fun clearText() {

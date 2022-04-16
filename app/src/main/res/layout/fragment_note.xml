@@ -61,6 +61,54 @@
         app:layout_constraintTop_toBottomOf="@+id/header_relative_layout"
         tools:text="May 21, 2020" />
 
+    <RelativeLayout
+        android:id="@+id/labels_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/root_side_margin"
+        android:layout_marginTop="@dimen/root_side_margin"
+        android:layout_marginEnd="@dimen/root_side_margin"
+        android:fontFamily="sans-serif"
+        android:textColor="@color/bright_grey"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/note_title"
+        tools:text="May 21, 2020">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chip_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:alpha="0.5"
+                android:layout_toEndOf="@id/chip_group"
+                android:layout_centerVertical="true"
+                android:visibility="visible">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_baseline_add_circle_outline_24"
+                    android:paddingRight="6dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:text="Add Labels"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+        </com.google.android.material.chip.ChipGroup>
+    </RelativeLayout>
+
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/note_title"
         android:layout_width="wrap_content"
@@ -94,7 +142,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/note_title"
+        app:layout_constraintTop_toBottomOf="@+id/labels_container"
         app:layout_constraintVertical_bias="0.0">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -108,6 +156,7 @@
             android:textColor="@color/black"
             android:textSize="16sp"
             tools:text="This is demo note This is ote This is deis demmo note This is deis demmo note This is demo note This is deis demmo note " />
+
 
     </ScrollView>
 
@@ -132,15 +181,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/date"
-        android:background="@color/primaryInactive">
+        android:background="@color/primaryInactive"
+        android:visibility="gone">
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            style="@style/Widget.App.FloatingActionButton.Circular"
             android:id="@+id/unlock_button"
+            style="@style/Widget.App.FloatingActionButton.Circular"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            app:srcCompat="@drawable/ic_baseline_lock_open_24"/>
+            app:srcCompat="@drawable/ic_baseline_lock_open_24" />
 
     </RelativeLayout>
 
