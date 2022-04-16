@@ -18,6 +18,7 @@ import com.github.danishjamal104.notes.R
 import com.github.danishjamal104.notes.data.local.CacheDataSource
 import com.github.danishjamal104.notes.data.local.CacheDataSourceImpl
 import com.github.danishjamal104.notes.data.local.Database
+import com.github.danishjamal104.notes.data.mapper.LabelMapper
 import com.github.danishjamal104.notes.data.mapper.NoteMapper
 import com.github.danishjamal104.notes.data.mapper.UserMapper
 import com.github.danishjamal104.notes.data.repository.note.NotesRepository
@@ -37,6 +38,7 @@ abstract class BaseCoroutineNoteWorker(ctx: Context, params: WorkerParameters) :
 
     private val userDao get() = db.userDao()
     private val noteDao get() = db.noteDao()
+    private val labelDao get() = db.labelDao()
 
     private val _userPreferences = UserPreferences(applicationContext)
     protected val userPreferences get() = _userPreferences
@@ -46,7 +48,8 @@ abstract class BaseCoroutineNoteWorker(ctx: Context, params: WorkerParameters) :
 
     private val _cacheDataSource =  CacheDataSourceImpl(
         UserMapper(),
-        NoteMapper(), userDao, noteDao)
+        NoteMapper(),
+        LabelMapper(), userDao, noteDao, labelDao)
     private val cacheDataSource: CacheDataSource = _cacheDataSource
 
     private val _noteRepository = NotesRepositoryImpl(cacheDataSource, userPreferences, encryptionPreferences)

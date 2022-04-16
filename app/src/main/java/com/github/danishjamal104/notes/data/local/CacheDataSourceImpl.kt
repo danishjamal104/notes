@@ -2,10 +2,13 @@ package com.github.danishjamal104.notes.data.local
 
 import com.github.danishjamal104.notes.data.entity.cache.NoteCacheEntity
 import com.github.danishjamal104.notes.data.entity.cache.UserCacheEntity
+import com.github.danishjamal104.notes.data.local.dao.LabelDao
 import com.github.danishjamal104.notes.data.local.dao.NoteDao
 import com.github.danishjamal104.notes.data.local.dao.UserDao
+import com.github.danishjamal104.notes.data.mapper.LabelMapper
 import com.github.danishjamal104.notes.data.mapper.NoteMapper
 import com.github.danishjamal104.notes.data.mapper.UserMapper
+import com.github.danishjamal104.notes.data.model.Label
 import com.github.danishjamal104.notes.data.model.Note
 import com.github.danishjamal104.notes.data.model.User
 import com.github.danishjamal104.notes.util.exception.UserStateException
@@ -15,8 +18,10 @@ class CacheDataSourceImpl
 constructor(
     private val userMapper: UserMapper,
     private val noteMapper: NoteMapper,
+    private val labelMapper: LabelMapper,
     private val userDao: UserDao,
-    private val noteDao: NoteDao
+    private val noteDao: NoteDao,
+    private val labelDao: LabelDao
 ): CacheDataSource{
 
     override suspend fun addUser(user: User): Long {
@@ -32,7 +37,7 @@ constructor(
     }
 
     override suspend fun deleteUser(userId: String): Int {
-        return userDao.deleteUser(userId);
+        return userDao.deleteUser(userId)
     }
 
     override suspend fun addNote(note: Note): Long {
@@ -67,4 +72,22 @@ constructor(
     override suspend fun deleteAllNote(userId: String): Int {
         return noteDao.deleteAllNoteOfUser(userId)
     }
+
+    override suspend fun getLabels(userId: String): List<Label> {
+        val result = labelDao.fetchLabels(userId)
+        return labelMapper.mapFromEntityList(result)
+    }
+
+    override suspend fun createLabel(label: Label): Long {
+        return labelDao.insertLabel(labelMapper.mapToEntity(label))
+    }
+
+    override suspend fun updateLabel(label: Label): Int {
+        return labelDao.updateLabel(labelMapper.mapToEntity(label))
+    }
+
+    override suspend fun deleteLabel(label: Label): Int {
+        return labelDao.deleteLabel(labelMapper.mapToEntity(label))
+    }
+
 }

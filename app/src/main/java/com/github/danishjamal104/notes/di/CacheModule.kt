@@ -5,8 +5,10 @@ import androidx.room.Room
 import com.github.danishjamal104.notes.data.local.CacheDataSource
 import com.github.danishjamal104.notes.data.local.CacheDataSourceImpl
 import com.github.danishjamal104.notes.data.local.Database
+import com.github.danishjamal104.notes.data.local.dao.LabelDao
 import com.github.danishjamal104.notes.data.local.dao.NoteDao
 import com.github.danishjamal104.notes.data.local.dao.UserDao
+import com.github.danishjamal104.notes.data.mapper.LabelMapper
 import com.github.danishjamal104.notes.data.mapper.NoteMapper
 import com.github.danishjamal104.notes.data.mapper.UserMapper
 import com.github.danishjamal104.notes.util.AppConstant
@@ -43,11 +45,19 @@ object CacheModule {
 
     @Singleton
     @Provides
+    fun provideLabelDao(database: Database): LabelDao {
+        return database.labelDao()
+    }
+
+    @Singleton
+    @Provides
     fun provideCacheDataSource(
         userMapper: UserMapper,
         noteMapper: NoteMapper,
+        labelMapper: LabelMapper,
         userDao: UserDao,
-        noteDao: NoteDao): CacheDataSource {
-        return CacheDataSourceImpl(userMapper, noteMapper, userDao, noteDao)
+        noteDao: NoteDao,
+        labelDao: LabelDao): CacheDataSource {
+        return CacheDataSourceImpl(userMapper, noteMapper, labelMapper, userDao, noteDao, labelDao)
     }
 }

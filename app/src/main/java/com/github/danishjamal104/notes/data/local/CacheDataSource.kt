@@ -1,5 +1,6 @@
 package com.github.danishjamal104.notes.data.local
 
+import com.github.danishjamal104.notes.data.model.Label
 import com.github.danishjamal104.notes.data.model.Note
 import com.github.danishjamal104.notes.data.model.User
 
@@ -14,4 +15,8 @@ interface CacheDataSource {
     suspend fun updateNote(note: Note): Int
     suspend fun deleteNote(note: Note): Int
     suspend fun deleteAllNote(userId: String): Int
+    suspend fun getLabels(userId: String): List<Label>
+    suspend fun createLabel(label: Label): Long
+    suspend fun updateLabel(label: Label): Int
+    suspend fun deleteLabel(label: Label): Int
 }
