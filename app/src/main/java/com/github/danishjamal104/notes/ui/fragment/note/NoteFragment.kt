@@ -9,8 +9,10 @@ import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.github.danishjamal104.notes.R
+import com.github.danishjamal104.notes.data.model.Label
 import com.github.danishjamal104.notes.data.model.Note
 import com.github.danishjamal104.notes.databinding.FragmentNoteBinding
+import com.github.danishjamal104.notes.ui.fragment.note.adapter.DialogAction
 import com.github.danishjamal104.notes.ui.fragment.note.adapter.LabelAdapter
 import com.github.danishjamal104.notes.ui.labelcomponent.LabelComponent
 import com.github.danishjamal104.notes.util.*
@@ -23,7 +25,7 @@ import javax.inject.Inject
 import kotlin.concurrent.schedule
 
 @AndroidEntryPoint
-class NoteFragment : Fragment(R.layout.fragment_note) {
+class NoteFragment : Fragment(R.layout.fragment_note), DialogAction {
 
     private lateinit var _binding: FragmentNoteBinding
     private val binding get() = _binding
@@ -54,9 +56,13 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
         noteId = arguments?.getInt(AppConstant.NOTE_ID_KEY, -1)
 
         setup()
-        labelComponent = LabelComponent.bind(requireContext(), labelAdapter)
+        labelComponent = LabelComponent.bind(requireContext(), labelAdapter, this)
 
         binding.addLabel.setOnClickListener {
+            if(!this::note.isInitialized) {
+                return@setOnClickListener
+            }
+            viewModel.setLabelEvent(LabelEvent.GetAllLabel(note))
             labelComponent.show()
         }
     }
@@ -64,6 +70,7 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
     private fun setup() {
         binding.date.text = date
         registerNoteState()
+        registerLabelState()
         registerClickEvents()
         noteId?.let {
             if(it==-1) {
@@ -93,6 +100,34 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
                 NoteState.Loading -> handleLoading()
                 is NoteState.GetNoteFailure -> longToast(it.reason)
                 is NoteState.GetNoteSuccess -> handleFetchNoteSuccess(it.note)
+            }
+        }
+    }
+
+    private fun registerLabelState() {
+        viewModel.labelState.observe(viewLifecycleOwner) {
+            when (it) {
+                is LabelState.GetLabelFailure -> longToast(it.reason)
+                is LabelState.GetLabelSuccess -> {
+                    shortToast("${it.labels.size} labels loaded")
+                    updateLabels(it.labels)
+                }
+                is LabelState.CreateLabelResult -> {
+                    if (it.success) {
+                        labelAdapter.add(it.label!!)
+                    } else {
+                        longToast(it.reason!!)
+                    }
+                }
+                is LabelState.GetAllLabelResult -> {
+                    if(it.success) {
+                        it.labels!!
+                        shortToast("Adding ${it.labels.size} labels")
+                        labelAdapter.setData(it.labels)
+                    } else {
+                        longToast(it.reason!!)
+                    }
+                }
             }
         }
     }
@@ -205,10 +240,10 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
     }
 
     // adds the chip in the chip group
-    private fun updateLabels(labels: List<String>) {
+    private fun updateLabels(labels: List<Label>) {
         labels.forEach {
             val chip = Chip(requireContext())
-            chip.text = it
+            chip.text = it.value
             chip.isCheckable = false
             chip.setChipBackgroundColorResource(R.color.chip_background)
             chip.setOnLongClickListener {
@@ -244,7 +279,9 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
     }
 
     private fun handleFetchNoteSuccess(note: Note) {
+        viewModel.setLabelEvent(LabelEvent.GetLabel(note))
         binding.progressBar.hide()
+        binding.addLabel.enable()
         enableButtons()
         this.note = note
         biometricPrompt()
@@ -299,6 +336,27 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
 
     private fun isNoteInitialised(): Boolean {
         return this::note.isInitialized
+    }
+
+    override fun createLabel(labelName: String) {
+        shortToast("Creating label $labelName")
+        labelComponent.releaseFocus()
+        viewModel.setLabelEvent(LabelEvent.CreateLabel(note, labelName))
+    }
+
+    override fun deleteLabel(label: Label) {
+        shortToast("Delete label ${label.value}")
+        //labelAdapter.deleteLabel(label.id)
+    }
+
+    override fun updateLabelName(oldLabel: Label, newLabelName: String) {
+        shortToast("Update label from ${oldLabel.value} to $newLabelName")
+       // labelAdapter.updateLabel(oldLabel.id, value = newLabelName)
+    }
+
+    override fun updateLabelCheck(oldLabel: Label, checked: Boolean) {
+        shortToast("Update label ${oldLabel.value} from ${oldLabel.checked} to $checked")
+        //labelAdapter.updateLabel(oldLabel.id, checked = checked)
     }
 
 }

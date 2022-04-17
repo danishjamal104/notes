@@ -22,7 +22,8 @@
             android:layout_alignParentStart="true"
             android:layout_marginStart="@dimen/root_side_margin"
             android:layout_marginTop="@dimen/root_side_margin"
-            app:srcCompat="@drawable/ic_back" />
+            app:srcCompat="@drawable/ic_back"
+            android:contentDescription="@string/cancel"/>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/delete_button"
@@ -32,7 +33,8 @@
             android:layout_alignParentEnd="true"
             android:layout_marginTop="@dimen/root_side_margin"
             android:layout_marginEnd="@dimen/root_side_margin"
-            app:srcCompat="@drawable/ic_baseline_delete_outline_24" />
+            app:srcCompat="@drawable/ic_baseline_delete_outline_24"
+            android:contentDescription="@string/delete"/>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/save_button"
@@ -43,7 +45,8 @@
             android:layout_marginEnd="@dimen/root_side_margin"
             android:layout_toStartOf="@id/delete_button"
             app:srcCompat="@drawable/ic_baseline_check_24"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            android:contentDescription="@string/save"/>
 
     </RelativeLayout>
 
@@ -85,24 +88,26 @@
                 android:id="@+id/add_label"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:alpha="0.5"
-                android:layout_toEndOf="@id/chip_group"
                 android:layout_centerVertical="true"
+                android:layout_toEndOf="@id/chip_group"
+                android:alpha="0.5"
+                android:gravity="center"
+                android:orientation="horizontal"
                 android:visibility="visible">
 
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:paddingEnd="6dp"
+                    android:paddingStart="0dp"
                     android:src="@drawable/ic_baseline_add_circle_outline_24"
-                    android:paddingRight="6dp"/>
+                    android:contentDescription="@string/add_labels"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
-                    android:text="Add Labels"
+                    android:text="@string/add_labels"
                     android:textStyle="bold" />
 
             </LinearLayout>
@@ -156,7 +161,7 @@
             android:lineSpacingExtra="3dp"
             android:textColor="@color/black"
             android:textSize="16sp"
-            tools:text="This is demo note This is ote This is deis demmo note This is deis demmo note This is demo note This is deis demmo note " />
+            tools:text="This is demo note This is ote This is deis demo note This is deis demo note This is demo note This is deis demo note " />
 
 
     </ScrollView>
@@ -191,7 +196,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            app:srcCompat="@drawable/ic_baseline_lock_open_24" />
+            app:srcCompat="@drawable/ic_baseline_lock_open_24"
+            android:contentDescription="@string/screen_lock"/>
 
     </RelativeLayout>
 

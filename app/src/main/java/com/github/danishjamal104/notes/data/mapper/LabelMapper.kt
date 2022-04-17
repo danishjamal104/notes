@@ -11,8 +11,6 @@ object LabelMapper : AbstractMapper<LabelCacheEntity, Label>() {
     }
 
     override fun mapToEntity(domainModel: Label): LabelCacheEntity {
-        return LabelCacheEntity(domainModel.userId, domainModel.value).apply {
-            id = domainModel.id
-        }
+        return LabelCacheEntity(domainModel.userId, domainModel.value)
     }
 }

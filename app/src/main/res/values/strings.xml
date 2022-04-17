@@ -26,4 +26,6 @@
     <string name="save">Save</string>
     <string name="create">Create</string>
     <string name="create_label">Create label</string>
+    <string name="delete">Delete</string>
+    <string name="screen_lock">Screen Lock</string>
 </resources>

@@ -10,15 +10,16 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.danishjamal104.notes.R
-import com.github.danishjamal104.notes.data.model.Label
 import com.github.danishjamal104.notes.databinding.LabelLayoutBinding
+import com.github.danishjamal104.notes.ui.fragment.note.adapter.DialogAction
 import com.github.danishjamal104.notes.ui.fragment.note.adapter.LabelAdapter
 import com.github.danishjamal104.notes.util.gone
 import com.github.danishjamal104.notes.util.visible
 
 class LabelDialog(
     val context: Context,
-    val labelAdapter: LabelAdapter
+    val labelAdapter: LabelAdapter,
+    private val dialogAction: DialogAction
 ) : LabelComponent {
 
     private var dialog: Dialog = Dialog(context, R.style.Theme_Notes)
@@ -28,7 +29,6 @@ class LabelDialog(
         LayoutInflater.from(context).inflate(R.layout.label_layout, null)
     )
     private val binding get() = _binding
-
 
     init {
         dialog.setContentView(binding.root)
@@ -56,19 +56,21 @@ class LabelDialog(
 
         })
 
-        val txt = listOf("Important", "dj", "Gmail", "Account", "Sem:2", "incognito", "assential")
-        val labels = mutableListOf<Label>()
-        var id = 0
-        txt.forEach {
-            labels.add(Label(id++, "0", it, true))
+        labelAdapter.labelActionListener = dialogAction
+
+        binding.createLabelButton.setOnClickListener {
+            dialogAction.createLabel(binding.labelName.text.toString().trim())
         }
 
         binding.labelList.layoutManager = LinearLayoutManager(context)
         binding.labelList.setHasFixedSize(false)
         binding.labelList.adapter = labelAdapter
+    }
 
-        labelAdapter.addLabels(labels, true)
-        labelAdapter.updateCheckState(4, false)
+    override fun releaseFocus() {
+        binding.labelName.isCursorVisible = false
+        binding.labelName.text?.clear()
+        //context.hideKeyboard(binding.labelName)
     }
 
     override fun show() {

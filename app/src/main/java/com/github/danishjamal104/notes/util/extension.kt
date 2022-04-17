@@ -9,8 +9,10 @@ import android.util.Base64
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.ImageButton
 import android.widget.RelativeLayout
 import android.widget.Toast
+import androidx.annotation.DrawableRes
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
@@ -20,6 +22,7 @@ import androidx.core.view.marginRight
 import androidx.core.view.marginTop
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import com.github.danishjamal104.notes.R
 import com.github.danishjamal104.notes.data.backupandrestore.PassKeyProcessor
 import com.github.danishjamal104.notes.util.encryption.EncryptionHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -101,6 +104,11 @@ fun Fragment.longToast(message: String) {
     requireContext().longToast(message)
 }
 
+fun ImageButton.setSrc(context: Context, @DrawableRes drawableRes: Int) {
+    this.setImageDrawable(
+        ContextCompat.getDrawable(context, drawableRes))
+}
+
 fun Context.showDefaultMaterialAlert(
     title: String,
     message: String,
@@ -114,7 +122,7 @@ fun Context.showDefaultMaterialAlert(
 
 fun Context.hideKeyboard(view: View) {
     val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-    inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+    inputMethodManager.hideSoftInputFromWindow(view.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
 }
 
 fun Activity.hideKeyboard() {
@@ -122,7 +130,7 @@ fun Activity.hideKeyboard() {
 }
 
 fun Fragment.hideKeyboard() {
-    view?.let { activity?.hideKeyboard(it) }
+    requireActivity().currentFocus?.let { activity?.hideKeyboard(it) }
 }
 
 fun Context.copyToClipboard(text: String) {

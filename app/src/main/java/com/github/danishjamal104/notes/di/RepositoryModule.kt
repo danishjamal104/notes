@@ -3,6 +3,8 @@ package com.github.danishjamal104.notes.di
 import com.github.danishjamal104.notes.data.local.CacheDataSource
 import com.github.danishjamal104.notes.data.repository.auth.AuthRepository
 import com.github.danishjamal104.notes.data.repository.auth.AuthRepositoryImpl
+import com.github.danishjamal104.notes.data.repository.label.LabelRepository
+import com.github.danishjamal104.notes.data.repository.label.LabelRepositoryImpl
 import com.github.danishjamal104.notes.data.repository.note.NotesRepository
 import com.github.danishjamal104.notes.data.repository.note.NotesRepositoryImpl
 import com.github.danishjamal104.notes.util.sharedpreference.EncryptionPreferences
@@ -19,16 +21,29 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideAuthRepository(cacheDataSource: CacheDataSource,
-                              userPreferences: UserPreferences): AuthRepository {
+    fun provideAuthRepository(
+        cacheDataSource: CacheDataSource,
+        userPreferences: UserPreferences
+    ): AuthRepository {
         return AuthRepositoryImpl(cacheDataSource, userPreferences)
     }
 
     @Singleton
     @Provides
-    fun provideNotesRepository(cacheDataSource: CacheDataSource,
-                               userPreferences: UserPreferences,
-                               encryptionPreferences: EncryptionPreferences): NotesRepository {
+    fun provideNotesRepository(
+        cacheDataSource: CacheDataSource,
+        userPreferences: UserPreferences,
+        encryptionPreferences: EncryptionPreferences
+    ): NotesRepository {
         return NotesRepositoryImpl(cacheDataSource, userPreferences, encryptionPreferences)
+    }
+
+    @Singleton
+    @Provides
+    fun provideLabelRepository(
+        cacheDataSource: CacheDataSource,
+        userPreferences: UserPreferences
+    ): LabelRepository {
+        return LabelRepositoryImpl(cacheDataSource, userPreferences)
     }
 }

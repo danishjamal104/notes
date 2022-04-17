@@ -18,6 +18,7 @@ interface CacheDataSource {
     suspend fun deleteAllNote(userId: String): Int
 
     suspend fun getLabels(userId: String): List<Label>
+    suspend fun getLabel(userId: String, labelId: Int): Label
     suspend fun createLabel(label: Label): Long
     suspend fun updateLabel(label: Label): Int
     suspend fun deleteLabel(label: Label): Int // deletes the label entry in the label table only

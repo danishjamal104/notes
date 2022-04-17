@@ -9,6 +9,9 @@ interface LabelDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertLabel(noteCacheEntity: LabelCacheEntity): Long
 
+    @Query("SELECT * FROM labels WHERE userId = :userId AND id = :id")
+    suspend fun getLabel(id: Int, userId: String): List<LabelCacheEntity>
+
     @Query("SELECT * FROM labels WHERE userId = :userId")
     suspend fun fetchLabels(userId: String): List<LabelCacheEntity>
 

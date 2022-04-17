@@ -8,8 +8,10 @@
         <entry key="app/src/main/res/drawable/ic_baseline_add_24.xml" value="0.1695" />
         <entry key="app/src/main/res/drawable/ic_baseline_add_circle_outline_24.xml" value="0.172" />
         <entry key="app/src/main/res/drawable/ic_baseline_check_24.xml" value="0.1335" />
+        <entry key="app/src/main/res/drawable/ic_baseline_delete_outline_24.xml" value="0.1335" />
         <entry key="app/src/main/res/drawable/ic_baseline_lock_open_24.xml" value="0.1695" />
         <entry key="app/src/main/res/drawable/ic_baseline_search_24.xml" value="0.22760416666666666" />
+        <entry key="app/src/main/res/drawable/ic_outline_delete_24.xml" value="0.1335" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.165" />
         <entry key="app/src/main/res/layout/filter_layout.xml" value="0.28020833333333334" />
         <entry key="app/src/main/res/layout/fragment_authentication.xml" value="0.22" />

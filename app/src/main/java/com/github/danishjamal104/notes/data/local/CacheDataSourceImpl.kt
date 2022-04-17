@@ -78,6 +78,14 @@ constructor(
         return LabelMapper.mapFromEntityList(result)
     }
 
+    override suspend fun getLabel(userId: String, labelId: Int): Label {
+        val result = labelDao.getLabel(labelId, userId)
+        if(result.size != 1) {
+            throw Exception("Label doesn't exist with id = $labelId")
+        }
+        return LabelMapper.mapFromEntity(result[0])
+    }
+
     override suspend fun createLabel(label: Label): Long {
         return labelDao.insertLabel(LabelMapper.mapToEntity(label))
     }
