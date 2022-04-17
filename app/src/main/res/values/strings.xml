@@ -20,4 +20,10 @@
     <string name="restore">Restore</string>
     <string name="backup_and_restore_menu">Backup And Restore Menu</string>
     <string name="add_labels">Add Labels</string>
+    <string name="enter_label_name">Enter label name</string>
+    <string name="cancel">Cancel</string>
+    <string name="label_icon">Label icon</string>
+    <string name="save">Save</string>
+    <string name="create">Create</string>
+    <string name="create_label">Create label</string>
 </resources>

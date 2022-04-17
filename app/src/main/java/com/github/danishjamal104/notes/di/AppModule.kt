@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.work.WorkManager
 import com.github.danishjamal104.notes.ui.Notes
 import com.github.danishjamal104.notes.ui.fragment.home.adapter.NotesAdapter
+import com.github.danishjamal104.notes.ui.fragment.note.adapter.LabelAdapter
 import com.github.danishjamal104.notes.util.sharedpreference.EncryptionPreferences
 import com.github.danishjamal104.notes.util.sharedpreference.UserPreferences
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -66,6 +67,12 @@ object AppModule {
     @Provides
     fun provideNoteAdapter(@ApplicationContext context: Context): NotesAdapter {
         return NotesAdapter(context)
+    }
+
+    @Singleton
+    @Provides
+    fun provideLabelAdapter(@ApplicationContext context: Context): LabelAdapter {
+        return LabelAdapter(context)
     }
 
     @Singleton

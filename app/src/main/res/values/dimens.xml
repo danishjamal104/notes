@@ -3,4 +3,5 @@
     <dimen name="root_side_margin">18dp</dimen>
     <dimen name="dialog_edit_text_margin_horizontal">22dp</dimen>
     <dimen name="dialog_edit_text_margin_vertical">22dp</dimen>
+    <dimen name="label_text_size">16sp</dimen>
 </resources>

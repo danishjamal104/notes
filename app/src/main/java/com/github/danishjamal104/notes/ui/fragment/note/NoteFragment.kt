@@ -11,6 +11,8 @@ import androidx.navigation.fragment.findNavController
 import com.github.danishjamal104.notes.R
 import com.github.danishjamal104.notes.data.model.Note
 import com.github.danishjamal104.notes.databinding.FragmentNoteBinding
+import com.github.danishjamal104.notes.ui.fragment.note.adapter.LabelAdapter
+import com.github.danishjamal104.notes.ui.labelcomponent.LabelComponent
 import com.github.danishjamal104.notes.util.*
 import com.github.danishjamal104.notes.util.sharedpreference.EncryptionPreferences
 import com.google.android.material.chip.Chip
@@ -33,12 +35,17 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
     @Inject
     lateinit var encryptionPreferences: EncryptionPreferences
 
+    @Inject
+    lateinit var labelAdapter: LabelAdapter
+
     private val viewModel: NoteViewModel by viewModels()
 
     private var noteId: Int? = null
     private lateinit var note: Note
 
     private var isScreenLocked = false
+
+    private lateinit var labelComponent: LabelComponent
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -47,6 +54,11 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
         noteId = arguments?.getInt(AppConstant.NOTE_ID_KEY, -1)
 
         setup()
+        labelComponent = LabelComponent.bind(requireContext(), labelAdapter)
+
+        binding.addLabel.setOnClickListener {
+            labelComponent.show()
+        }
     }
 
     private fun setup() {

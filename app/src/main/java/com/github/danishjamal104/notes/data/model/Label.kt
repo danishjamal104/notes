@@ -4,4 +4,5 @@ class Label(
     var id: Int,
     var userId: String,
     var value: String,
+    var checked: Boolean = false
 )

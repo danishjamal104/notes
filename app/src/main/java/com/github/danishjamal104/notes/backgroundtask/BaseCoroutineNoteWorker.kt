@@ -39,6 +39,7 @@ abstract class BaseCoroutineNoteWorker(ctx: Context, params: WorkerParameters) :
     private val userDao get() = db.userDao()
     private val noteDao get() = db.noteDao()
     private val labelDao get() = db.labelDao()
+    private val noteLabelJoinDao get() = db.noteLabelJoinDao()
 
     private val _userPreferences = UserPreferences(applicationContext)
     protected val userPreferences get() = _userPreferences
@@ -47,9 +48,7 @@ abstract class BaseCoroutineNoteWorker(ctx: Context, params: WorkerParameters) :
     private val encryptionPreferences = _encryptionPreferences
 
     private val _cacheDataSource =  CacheDataSourceImpl(
-        UserMapper(),
-        NoteMapper(),
-        LabelMapper(), userDao, noteDao, labelDao)
+        userDao, noteDao, labelDao, noteLabelJoinDao)
     private val cacheDataSource: CacheDataSource = _cacheDataSource
 
     private val _noteRepository = NotesRepositoryImpl(cacheDataSource, userPreferences, encryptionPreferences)

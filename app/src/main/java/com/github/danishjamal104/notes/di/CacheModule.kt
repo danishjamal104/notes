@@ -7,10 +7,8 @@ import com.github.danishjamal104.notes.data.local.CacheDataSourceImpl
 import com.github.danishjamal104.notes.data.local.Database
 import com.github.danishjamal104.notes.data.local.dao.LabelDao
 import com.github.danishjamal104.notes.data.local.dao.NoteDao
+import com.github.danishjamal104.notes.data.local.dao.NoteLabelJoinDao
 import com.github.danishjamal104.notes.data.local.dao.UserDao
-import com.github.danishjamal104.notes.data.mapper.LabelMapper
-import com.github.danishjamal104.notes.data.mapper.NoteMapper
-import com.github.danishjamal104.notes.data.mapper.UserMapper
 import com.github.danishjamal104.notes.util.AppConstant
 import dagger.Module
 import dagger.Provides
@@ -51,13 +49,18 @@ object CacheModule {
 
     @Singleton
     @Provides
+    fun provideNoteLabelJoinDao(database: Database): NoteLabelJoinDao {
+        return database.noteLabelJoinDao()
+    }
+
+    @Singleton
+    @Provides
     fun provideCacheDataSource(
-        userMapper: UserMapper,
-        noteMapper: NoteMapper,
-        labelMapper: LabelMapper,
         userDao: UserDao,
         noteDao: NoteDao,
-        labelDao: LabelDao): CacheDataSource {
-        return CacheDataSourceImpl(userMapper, noteMapper, labelMapper, userDao, noteDao, labelDao)
+        labelDao: LabelDao,
+        noteLabelJoinDao: NoteLabelJoinDao
+    ): CacheDataSource {
+        return CacheDataSourceImpl(userDao, noteDao, labelDao, noteLabelJoinDao)
     }
 }
