@@ -90,7 +90,7 @@ abstract class BaseCoroutineNoteWorker(ctx: Context, params: WorkerParameters) :
                     PendingIntent.FLAG_UPDATE_CURRENT
         )
         val builder = NotificationCompat.Builder(context, AppConstant.Notification.CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -106,7 +106,6 @@ abstract class BaseCoroutineNoteWorker(ctx: Context, params: WorkerParameters) :
     /**
      * Creates the default notification showing the backup progress
      * @param title title of the notification
-     * @param message message to be displayed in notification
      * @param id Notification id
      */
     private fun makeStatusNotification(title: String, id: Int): ForegroundInfo {
@@ -133,13 +132,13 @@ abstract class BaseCoroutineNoteWorker(ctx: Context, params: WorkerParameters) :
             WorkManager.getInstance(applicationContext).createCancelPendingIntent(getId())
         // Create the notification
         val builder = NotificationCompat.Builder(context, AppConstant.Notification.CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(title)
             .setContentText("Completed $progress%")
             .setContentIntent(pendingIntent)
             .setProgress(maxProgress, progress, false)
             .setOngoing(true)
-            .addAction(android.R.drawable.ic_delete, "Cancel", cancelIntent)
+            .addAction(R.mipmap.ic_launcher, "Cancel", cancelIntent)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
 
         return ForegroundInfo(id, builder.build())

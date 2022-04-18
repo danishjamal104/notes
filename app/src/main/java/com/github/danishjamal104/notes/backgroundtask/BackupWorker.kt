@@ -169,12 +169,12 @@ class BackupWorker(ctx: Context, params: WorkerParameters) : BaseCoroutineNoteWo
             PendingIntent.FLAG_UPDATE_CURRENT
         )
         val builder = NotificationCompat.Builder(context, AppConstant.Notification.CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
-            .addAction(R.drawable.ic_baseline_lock_open_24, "Copy EncryptionKey", pendingIntent)
+            .addAction(R.mipmap.ic_launcher, "Copy EncryptionKey", pendingIntent)
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))
             .setVibrate(LongArray(0))
 
