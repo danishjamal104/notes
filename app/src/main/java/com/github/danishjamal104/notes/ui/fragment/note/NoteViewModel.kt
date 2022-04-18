@@ -110,6 +110,10 @@ class NoteViewModel
                 is LabelEvent.GetAllLabel -> {
                     fetchAllLabel(event.note)
                 }
+                is LabelEvent.AddLabelInNote -> addLabelInNote(event.label, event.note)
+                is LabelEvent.DeleteLabel -> deleteLabel(event.label)
+                is LabelEvent.RemoveLabelFromNote -> removeLabelFromNote(event.label, event.note)
+                is LabelEvent.UpdateLabel -> updateLabel(event.label, event.newLabelName)
             }
         }
     }
@@ -123,8 +127,19 @@ class NoteViewModel
 
     private suspend fun fetchAllLabel(note: Note) {
         when (val result = labelRepository.fetchAllLabel(note)) {
-            is ServiceResult.Error -> _labelState.postValue(LabelState.GetAllLabelResult(false, null, result.reason))
-            is ServiceResult.Success -> _labelState.postValue(LabelState.GetAllLabelResult(true, result.data))
+            is ServiceResult.Error -> _labelState.postValue(
+                LabelState.GetAllLabelResult(
+                    false,
+                    null,
+                    result.reason
+                )
+            )
+            is ServiceResult.Success -> _labelState.postValue(
+                LabelState.GetAllLabelResult(
+                    true,
+                    result.data
+                )
+            )
         }
     }
 
@@ -145,7 +160,7 @@ class NoteViewModel
                 label = result.data
             }
         }
-        when (val result = labelRepository.addLabelToNote(note, label)) {
+        when (val result = labelRepository.addLabelInNote(note, label)) {
             is ServiceResult.Error -> {
                 _labelState.postValue(
                     LabelState.CreateLabelResult(
@@ -163,19 +178,108 @@ class NoteViewModel
         }
     }
 
+    private suspend fun addLabelInNote(label: Label, note: Note) {
+        when (val result = labelRepository.addLabelInNote(note, label)) {
+            is ServiceResult.Error -> _labelState.postValue(LabelState.Info("Unable to add label ${label.value}. ${result.reason}"))
+            is ServiceResult.Success -> _labelState.postValue(
+                LabelState.CheckStateUpdated(
+                    label,
+                    true
+                )
+            )
+        }
+    }
+
+    private suspend fun removeLabelFromNote(label: Label, note: Note) {
+        when (val result = labelRepository.removeLabelFromNote(note, label)) {
+            is ServiceResult.Error -> _labelState.postValue(LabelState.Info("Unable to remove label ${label.value}. ${result.reason}"))
+            is ServiceResult.Success -> _labelState.postValue(
+                LabelState.CheckStateUpdated(
+                    label,
+                    false
+                )
+            )
+        }
+    }
+
+    private suspend fun deleteLabel(label: Label) {
+        when (val result = labelRepository.deleteLabel(label)) {
+            is ServiceResult.Error -> _labelState.postValue(
+                LabelState.DeleteLabelResult(
+                    false,
+                    null,
+                    result.reason
+                )
+            )
+            is ServiceResult.Success -> _labelState.postValue(
+                LabelState.DeleteLabelResult(
+                    true,
+                    result.data
+                )
+            )
+        }
+    }
+
+    private suspend fun updateLabel(label: Label, newLabelName: String) {
+        label.value = newLabelName
+        when (val result = labelRepository.updateLabel(label)) {
+            is ServiceResult.Error -> _labelState.postValue(
+                LabelState.UpdateLabelResult(
+                    false,
+                    null,
+                    result.reason
+                )
+            )
+            is ServiceResult.Success -> _labelState.postValue(
+                LabelState.UpdateLabelResult(
+                    true,
+                    result.data
+                )
+            )
+        }
+    }
+
 }
 
 sealed class LabelState {
+    data class Info(val info: String) : LabelState()
     data class GetLabelSuccess(val labels: List<Label>) : LabelState()
     data class GetLabelFailure(val reason: String) : LabelState()
-    data class GetAllLabelResult(val success: Boolean, val labels: List<Label>? = null, val reason: String? = ""): LabelState()
-    data class CreateLabelResult(val success: Boolean, val label: Label? = null, val reason: String? = "") : LabelState()
+    data class GetAllLabelResult(
+        val success: Boolean,
+        val labels: List<Label>? = null,
+        val reason: String? = ""
+    ) : LabelState()
+
+    data class CreateLabelResult(
+        val success: Boolean,
+        val label: Label? = null,
+        val reason: String? = ""
+    ) : LabelState()
+
+    data class DeleteLabelResult(
+        val success: Boolean,
+        val label: Label? = null,
+        val reason: String? = ""
+    ) : LabelState()
+
+    data class UpdateLabelResult(
+        val success: Boolean,
+        val label: Label? = null,
+        val reason: String? = ""
+    ) : LabelState()
+
+    data class CheckStateUpdated(val label: Label, val isChecked: Boolean) : LabelState()
 }
 
 sealed class LabelEvent {
     data class GetLabel(val note: Note) : LabelEvent()
-    data class GetAllLabel(val note: Note): LabelEvent()
+    data class GetAllLabel(val note: Note) : LabelEvent()
     data class CreateLabel(val note: Note, val labelName: String) : LabelEvent()
+    data class UpdateLabel(val label: Label, val newLabelName: String) : LabelEvent()
+    data class DeleteLabel(val label: Label) : LabelEvent()
+    data class AddLabelInNote(val label: Label, val note: Note) : LabelEvent()
+    data class RemoveLabelFromNote(val label: Label, val note: Note) : LabelEvent()
 }
 
 sealed class NoteState {

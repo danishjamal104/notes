@@ -19,6 +19,6 @@ interface LabelDao {
     suspend fun updateLabel(noteCacheEntity: LabelCacheEntity): Int
 
     @Delete
-    suspend fun deleteLabel(noteCacheEntity: LabelCacheEntity): Int
+    suspend fun deleteLabel(labelCacheEntity: LabelCacheEntity): Int
 
 }

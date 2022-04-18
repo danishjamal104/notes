@@ -11,6 +11,6 @@ interface LabelRepository {
 
     suspend fun fetchAllLabel(note: Note): ServiceResult<List<Label>>
     suspend fun getLabelOfNote(note: Note): ServiceResult<List<Label>>
-    suspend fun addLabelToNote(note: Note, label: Label): ServiceResult<Unit>
+    suspend fun addLabelInNote(note: Note, label: Label): ServiceResult<Unit>
     suspend fun removeLabelFromNote(note: Note, label: Label): ServiceResult<Unit>
 }

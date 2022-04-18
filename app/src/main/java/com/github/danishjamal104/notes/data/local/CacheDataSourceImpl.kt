@@ -14,7 +14,6 @@ import com.github.danishjamal104.notes.data.model.Label
 import com.github.danishjamal104.notes.data.model.Note
 import com.github.danishjamal104.notes.data.model.User
 import com.github.danishjamal104.notes.util.exception.UserStateException
-import java.lang.Exception
 
 class CacheDataSourceImpl
 constructor(
@@ -22,7 +21,7 @@ constructor(
     private val noteDao: NoteDao,
     private val labelDao: LabelDao,
     private val noteLabelJoinDao: NoteLabelJoinDao
-): CacheDataSource{
+) : CacheDataSource {
 
     override suspend fun addUser(user: User): Long {
         return userDao.insertUser(UserMapper.mapToEntity(user))
@@ -30,7 +29,7 @@ constructor(
 
     override suspend fun getUser(userId: String): User {
         val result: List<UserCacheEntity> = userDao.getUser(userId)
-        if(result.size != 1) {
+        if (result.size != 1) {
             throw UserStateException("$userId has multiple account setup")
         }
         return UserMapper.mapFromEntity(result[0])
@@ -51,7 +50,7 @@ constructor(
 
     override suspend fun getNote(id: Int, userId: String): Note {
         val result = noteDao.getNote(id, userId)
-        if(result.size != 1) {
+        if (result.size != 1) {
             throw Exception("Note doesn't exist with id = $id")
         }
         return NoteMapper.mapFromEntity(result[0])
@@ -80,7 +79,7 @@ constructor(
 
     override suspend fun getLabel(userId: String, labelId: Int): Label {
         val result = labelDao.getLabel(labelId, userId)
-        if(result.size != 1) {
+        if (result.size != 1) {
             throw Exception("Label doesn't exist with id = $labelId")
         }
         return LabelMapper.mapFromEntity(result[0])
@@ -91,11 +90,11 @@ constructor(
     }
 
     override suspend fun updateLabel(label: Label): Int {
-        return labelDao.updateLabel(LabelMapper.mapToEntity(label))
+        return labelDao.updateLabel(LabelMapper.mapToEntity(label).apply { id = label.id })
     }
 
     override suspend fun deleteLabel(label: Label): Int {
-        return labelDao.deleteLabel(LabelMapper.mapToEntity(label))
+        return labelDao.deleteLabel(LabelMapper.mapToEntity(label).apply { id = label.id })
     }
 
     override suspend fun getNotesForLabel(userId: String, labelId: Int): List<Note> {
@@ -126,7 +125,7 @@ constructor(
 
     override suspend fun deleteLabelAssociatedWithEachNote(userId: String, label: Label): Int {
         when (noteLabelJoinDao.deleteByLabelId(label.id)) {
-            !in 0..Int.MAX_VALUE -> return -1
+            !in 1..Int.MAX_VALUE -> return -1
         }
         return deleteLabel(label)
     }

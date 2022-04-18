@@ -14,6 +14,7 @@ import com.github.danishjamal104.notes.databinding.LabelLayoutBinding
 import com.github.danishjamal104.notes.ui.fragment.note.adapter.DialogAction
 import com.github.danishjamal104.notes.ui.fragment.note.adapter.LabelAdapter
 import com.github.danishjamal104.notes.util.gone
+import com.github.danishjamal104.notes.util.hideKeyboard
 import com.github.danishjamal104.notes.util.visible
 
 class LabelDialog(
@@ -68,9 +69,13 @@ class LabelDialog(
     }
 
     override fun releaseFocus() {
-        binding.labelName.isCursorVisible = false
         binding.labelName.text?.clear()
-        //context.hideKeyboard(binding.labelName)
+        binding.labelName.clearFocus()
+        context.hideKeyboard(binding.labelName)
+        binding.labelList.focusedChild?.let {
+            context.hideKeyboard(it)
+            it.clearFocus()
+        }
     }
 
     override fun show() {

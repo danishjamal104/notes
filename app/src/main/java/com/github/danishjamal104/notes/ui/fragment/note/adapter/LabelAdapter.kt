@@ -118,26 +118,29 @@ constructor(val context: Context): RecyclerView.Adapter<LabelAdapter.LabelViewHo
     }
 
     fun updateLabel(labelId: Int, value: String = "", checked: Boolean? = null) {
-        val label = data.filter {
-            it.id == labelId
-        }[0]
+        val position = getPosition(labelId)
+        val label = data[position]
         if(value != "") {
             label.value = value
         }
         if(checked != null) {
             label.checked = checked
         }
-        notifyItemChanged(data.indexOf(label))
+        notifyItemChanged(position)
     }
 
     fun deleteLabel(labelId: Int) {
-        val label = data.filter {
-            it.id == labelId
-        }[0]
-        val idx = data.indexOf(label)
+        val idx = getPosition(labelId)
         data.removeAt(idx)
         backupData.clear()
         backupData.addAll(data)
         notifyItemRemoved(idx)
+    }
+
+    private fun getPosition(labelId: Int):Int {
+        val label = data.filter {
+            it.id == labelId
+        }[0]
+        return data.indexOf(label)
     }
 }

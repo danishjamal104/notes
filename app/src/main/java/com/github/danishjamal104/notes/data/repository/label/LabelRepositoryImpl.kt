@@ -28,7 +28,7 @@ constructor(
     override suspend fun deleteLabel(label: Label): ServiceResult<Label> {
         return try {
             when (cacheDataSource.deleteLabelAssociatedWithEachNote(userId, label)) {
-                in 0..Int.MAX_VALUE -> ServiceResult.Success(label)
+                in 1..Int.MAX_VALUE -> ServiceResult.Success(label)
                 else -> ServiceResult.Error("Deletion failed")
             }
         } catch (e: Exception) {
@@ -40,7 +40,7 @@ constructor(
         return try {
             when(cacheDataSource.updateLabel(label)) {
                 in 0..Int.MAX_VALUE -> ServiceResult.Success(label)
-                else -> ServiceResult.Error("Deletion failed")
+                else -> ServiceResult.Error("Update failed")
             }
         } catch (e: Exception) {
             ServiceResult.Error(""+e.localizedMessage)
@@ -82,7 +82,7 @@ constructor(
         }
     }
 
-    override suspend fun addLabelToNote(note: Note, label: Label): ServiceResult<Unit> {
+    override suspend fun addLabelInNote(note: Note, label: Label): ServiceResult<Unit> {
        return try {
            cacheDataSource.addLabelInNote(userId, note.id, label.id)
            ServiceResult.Success(Unit)
