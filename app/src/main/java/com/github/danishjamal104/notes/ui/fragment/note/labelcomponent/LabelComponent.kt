@@ -1,4 +1,4 @@
-package com.github.danishjamal104.notes.ui.labelcomponent
+package com.github.danishjamal104.notes.ui.fragment.note.labelcomponent
 
 import android.content.Context
 import com.github.danishjamal104.notes.ui.fragment.note.adapter.DialogAction

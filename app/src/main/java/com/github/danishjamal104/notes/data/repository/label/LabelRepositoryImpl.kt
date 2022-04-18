@@ -47,6 +47,15 @@ constructor(
         }
     }
 
+    override suspend fun fetchAllLabel(): ServiceResult<List<Label>> {
+        return try {
+            val result = cacheDataSource.getLabels(userId)
+            ServiceResult.Success(result)
+        } catch (e: Exception) {
+            ServiceResult.Error(""+e.localizedMessage)
+        }
+    }
+
     override suspend fun fetchAllLabel(note: Note): ServiceResult<List<Label>> {
         var noteLabel: List<Label>? = null
         when(val res = getLabelOfNote(note)) {

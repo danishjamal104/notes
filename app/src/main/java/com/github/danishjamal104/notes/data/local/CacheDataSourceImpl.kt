@@ -102,6 +102,11 @@ constructor(
         return NoteMapper.mapFromEntityList(result)
     }
 
+    override suspend fun getNotesForLabels(userId: String, labelIds: List<Int>): List<Note> {
+        val result = noteLabelJoinDao.getNotesForLabels(labelIds)
+        return NoteMapper.mapFromEntityList(result)
+    }
+
     override suspend fun getLabelsForNote(userId: String, noteId: Int): List<Label> {
         val result = noteLabelJoinDao.getLabelsForNote(userId, noteId)
         return LabelMapper.mapFromEntityList(result)

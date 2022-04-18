@@ -1,14 +1,18 @@
 package com.github.danishjamal104.notes.ui.fragment.home
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.work.WorkManager
 import com.github.danishjamal104.notes.R
+import com.github.danishjamal104.notes.data.model.Label
 import com.github.danishjamal104.notes.data.model.Note
 import com.github.danishjamal104.notes.databinding.FragmentHomeBinding
 import com.github.danishjamal104.notes.ui.fragment.home.adapter.ItemClickListener
@@ -17,6 +21,7 @@ import com.github.danishjamal104.notes.ui.main.MainActivity
 import com.github.danishjamal104.notes.util.*
 import com.github.danishjamal104.notes.util.sharedpreference.UserPreferences
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.material.chip.Chip
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -39,6 +44,8 @@ class HomeFragment : Fragment(R.layout.fragment_home), ItemClickListener<Note> {
 
     @Inject
     lateinit var workManager: WorkManager
+
+    private val labels: MutableList<Label> = mutableListOf()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -75,6 +82,8 @@ class HomeFragment : Fragment(R.layout.fragment_home), ItemClickListener<Note> {
                 is HomeState.GetNotesFailure -> handleFailure(it.reason)
                 is HomeState.GetNotesSuccess -> handleSuccess(it.notes)
                 HomeState.Loading -> handleLoading()
+                is HomeState.GetLabelResult -> handleGetLabelResult(it)
+                is HomeState.GetNotesByLabelResult -> handleGetNotesByLabelResult(it)
             }
         }
     }
@@ -93,6 +102,32 @@ class HomeFragment : Fragment(R.layout.fragment_home), ItemClickListener<Note> {
             }
         }
         binding.swipeRefresh.setOnRefreshListener {
+            if (binding.clearFilter.isVisible) {
+                updateNoteList()
+                return@setOnRefreshListener
+            }
+            viewModel.setEvent(HomeEvent.GetNotes)
+        }
+        binding.filterButton.setOnClickListener {
+            binding.emptyListText.text = requireContext().getString(R.string.empty_filter_text)
+            binding.emptyListIllustration.setImageDrawable(
+                ContextCompat.getDrawable(
+                    requireContext(),
+                    R.drawable.ic_empty_illustration
+                )
+            )
+            viewModel.setEvent(HomeEvent.GetLabels)
+        }
+        binding.clearFilter.setOnClickListener {
+            binding.emptyListText.text = requireContext().getString(R.string.empty_notes_list_text)
+            binding.emptyListIllustration.setImageDrawable(
+                ContextCompat.getDrawable(
+                    requireContext(),
+                    R.drawable.ic_no_note_illustration
+                )
+            )
+            hideFilterLayout()
+            adapter.clearAll()
             viewModel.setEvent(HomeEvent.GetNotes)
         }
     }
@@ -117,6 +152,34 @@ class HomeFragment : Fragment(R.layout.fragment_home), ItemClickListener<Note> {
         hideProgress()
     }
 
+    private fun handleGetNotesByLabelResult(state: HomeState.GetNotesByLabelResult) {
+        if (state.success) {
+            adapter.clearAll()
+            val notes = state.notes!!
+            if (notes.isEmpty()) {
+                shortToast("No notes with matching labels")
+            }
+            adapter.addNotes(state.notes)
+        } else {
+            longToast("Unable to apply filter")
+        }
+        hideProgress()
+    }
+
+    private fun handleGetLabelResult(state: HomeState.GetLabelResult) {
+        if (state.success) {
+            labels.clear()
+            state.labels!!.forEach {
+                labels.add(it)
+            }
+            loadLabels()
+        } else {
+            longToast(state.reason!!)
+        }
+        hideProgress()
+        updateNoteList()
+    }
+
     private fun showProgress() {
         binding.linearProgress.visible()
     }
@@ -128,6 +191,72 @@ class HomeFragment : Fragment(R.layout.fragment_home), ItemClickListener<Note> {
 
     private fun handleLoading() {
         showProgress()
+    }
+
+    private fun loadLabels() {
+        if (labels.size == 0) {
+            longToast(getString(R.string.no_label_filter_info_text))
+            hideFilterLayout()
+            return
+        }
+        shortToast("Showing ${labels.size} labels")
+        updateLabels(labels)
+        showFilterLayout()
+
+    }
+
+    private fun showFilterLayout() {
+        binding.tagContainer.visible()
+        binding.clearFilter.visible()
+    }
+
+    private fun hideFilterLayout() {
+        binding.tagContainer.gone()
+        binding.clearFilter.gone()
+    }
+
+    private fun updateLabels(labels: List<Label>) {
+        binding.chipGroup.removeAllViews()
+        labels.forEach {
+            val chip = Chip(requireContext())
+            chip.text = it.value
+            chip.isCheckable = true
+            chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.always_white))
+            chip.setChipBackgroundColorResource(R.color.slight_primary)
+            binding.chipGroup.addView(chip)
+
+            chip.setOnCheckedChangeListener { _, checked ->
+                it.checked = checked
+                updateNoteList()
+            }
+        }
+    }
+
+    /**
+     * this function will take the latest [labels], and apply db query and update adapter list
+     * todo update adapter for filter logic
+     * apply filter login in [HomeFragment] to filter the note list
+     */
+    private fun updateNoteList() {
+        val selected = mutableListOf<Label>()
+        labels.forEach {
+            if (it.checked) {
+                selected.add(it)
+            }
+        }
+        viewModel.setEvent(HomeEvent.GetNotesByLabel(selected))
+        prettyLogger()
+    }
+
+    private fun prettyLogger() {
+        val sb = StringBuilder()
+        labels.forEach {
+            if (it.checked) {
+                sb.append("! ")
+            }
+            sb.append("${it.value}\n")
+        }
+        Log.i("pretty", sb.toString())
     }
 
     override fun onItemClicked(item: Note, position: Int, view: View) {

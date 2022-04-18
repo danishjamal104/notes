@@ -1,4 +1,4 @@
-package com.github.danishjamal104.notes.ui.labelcomponent
+package com.github.danishjamal104.notes.ui.fragment.note.labelcomponent
 
 import android.annotation.SuppressLint
 import android.app.Dialog

@@ -13,7 +13,8 @@
     <string name="title">Title</string>
     <string name="start_typing">Start typing</string>
     <string name="illustration">Illustration</string>
-    <string name="your_notes_appear_here_try_adding_them_from_plus_icon">Your notes appear here\ntry adding them from plus icon</string>
+    <string name="empty_notes_list_text">Your notes appear here\ntry adding them from plus icon</string>
+    <string name="empty_filter_text">Click on the respective labels\nto apply filter</string>
     <string name="create_new_note">Create new note</string>
     <string name="backup_button">Backup Button</string>
     <string name="backup">Backup</string>
@@ -28,4 +29,6 @@
     <string name="create_label">Create label</string>
     <string name="delete">Delete</string>
     <string name="screen_lock">Screen Lock</string>
+    <string name="clear_filter">Clear Filter</string>
+    <string name="no_label_filter_info_text">You don\'t have any labels to apply filter. Try creating them from respective note.</string>
 </resources>

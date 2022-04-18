@@ -1,12 +1,12 @@
 package com.github.danishjamal104.notes.data.repository.note
 
 import com.github.danishjamal104.notes.data.local.CacheDataSource
+import com.github.danishjamal104.notes.data.model.Label
 import com.github.danishjamal104.notes.data.model.Note
 import com.github.danishjamal104.notes.util.ServiceResult
 import com.github.danishjamal104.notes.util.encrypt
 import com.github.danishjamal104.notes.util.sharedpreference.EncryptionPreferences
 import com.github.danishjamal104.notes.util.sharedpreference.UserPreferences
-import java.lang.Exception
 import java.util.*
 
 class NotesRepositoryImpl
@@ -14,7 +14,7 @@ constructor(
     private val cacheDataSource: CacheDataSource,
     private val userPreferences: UserPreferences,
     private val encryptionPreferences: EncryptionPreferences
-): NotesRepository{
+) : NotesRepository {
 
     private val userId get() = userPreferences.getUserId()
 
@@ -27,7 +27,7 @@ constructor(
             cacheDataSource.addNote(note)
             ServiceResult.Success(Unit)
         } catch (e: Exception) {
-            ServiceResult.Error(""+e.localizedMessage)
+            ServiceResult.Error("" + e.localizedMessage)
         }
     }
 
@@ -36,7 +36,7 @@ constructor(
             cacheDataSource.addNote(note)
             ServiceResult.Success(Unit)
         } catch (e: Exception) {
-            ServiceResult.Error(""+e.localizedMessage)
+            ServiceResult.Error("" + e.localizedMessage)
         }
     }
 
@@ -47,7 +47,7 @@ constructor(
             }
             ServiceResult.Success(Unit)
         } catch (e: Exception) {
-            ServiceResult.Error(""+e.localizedMessage)
+            ServiceResult.Error("" + e.localizedMessage)
         }
     }
 
@@ -56,7 +56,16 @@ constructor(
             val result = cacheDataSource.getNotes(userId)
             ServiceResult.Success(result)
         } catch (e: Exception) {
-            ServiceResult.Error(""+e.localizedMessage)
+            ServiceResult.Error("" + e.localizedMessage)
+        }
+    }
+
+    override suspend fun getNoteOfLabels(labels: List<Label>): ServiceResult<List<Note>> {
+        return try {
+            val result = cacheDataSource.getNotesForLabels(userId, labels.map { it.id })
+            ServiceResult.Success(result.toSet().toList())
+        } catch (e: Exception) {
+            ServiceResult.Error("" + e.localizedMessage)
         }
     }
 
@@ -65,43 +74,43 @@ constructor(
             val result = cacheDataSource.getNote(noteId, userId)
             ServiceResult.Success(result)
         } catch (e: Exception) {
-            ServiceResult.Error(""+e.localizedMessage)
+            ServiceResult.Error("" + e.localizedMessage)
         }
     }
 
     override suspend fun updateNote(note: Note): ServiceResult<Note> {
         note.value = note.value.encrypt(encryptionPreferences.key)
         return try {
-            when(cacheDataSource.updateNote(note)) {
+            when (cacheDataSource.updateNote(note)) {
                 0 -> ServiceResult.Error("Updating failed ")
                 1 -> ServiceResult.Success(note)
                 else -> ServiceResult.Error("Invalid update")
             }
         } catch (e: Exception) {
-            ServiceResult.Error(""+e.localizedMessage)
+            ServiceResult.Error("" + e.localizedMessage)
         }
     }
 
     override suspend fun deleteNote(note: Note): ServiceResult<Note> {
         return try {
-            when(cacheDataSource.deleteNote(note)) {
+            when (cacheDataSource.deleteNote(note)) {
                 0 -> ServiceResult.Error("Deletion failed ")
                 1 -> ServiceResult.Success(note)
                 else -> ServiceResult.Error("Invalid deletion")
             }
         } catch (e: Exception) {
-            ServiceResult.Error(""+e.localizedMessage)
+            ServiceResult.Error("" + e.localizedMessage)
         }
     }
 
     override suspend fun deleteAllNotes(): ServiceResult<Unit> {
         return try {
-            when(cacheDataSource.deleteAllNote(userId)) {
+            when (cacheDataSource.deleteAllNote(userId)) {
                 in 0..Int.MAX_VALUE -> ServiceResult.Success(Unit)
                 else -> ServiceResult.Error("Deletion failed")
             }
         } catch (e: Exception) {
-            ServiceResult.Error(""+e.localizedMessage)
+            ServiceResult.Error("" + e.localizedMessage)
         }
     }
 

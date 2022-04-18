@@ -17,6 +17,9 @@ interface NoteLabelJoinDao {
     @Query("SELECT * FROM notes INNER JOIN note_label_join ON id=noteId WHERE labelId=:labelId")
     suspend fun getNotesForLabel(labelId: Int): List<NoteCacheEntity>
 
+    @Query("SELECT * FROM notes INNER JOIN note_label_join ON id=noteId WHERE labelId IN (:labelIds)")
+    suspend fun getNotesForLabels(labelIds: List<Int>): List<NoteCacheEntity>
+
     @Query("SELECT * FROM labels AS l1 INNER JOIN note_label_join ON l1.id=labelId WHERE l1.userId=:userId AND noteId=:noteId")
     suspend fun getLabelsForNote(userId: String, noteId: Int): List<LabelCacheEntity>
 

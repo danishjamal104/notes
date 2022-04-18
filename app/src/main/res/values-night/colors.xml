@@ -16,5 +16,7 @@
 
     <color name="bright_grey">#959595</color>
 
+    <color name="slight_primary">#373737</color>
+
     <color name="chip_background">#2B2B2B</color>
 </resources>

@@ -14,7 +14,7 @@ import com.github.danishjamal104.notes.data.model.Note
 import com.github.danishjamal104.notes.databinding.FragmentNoteBinding
 import com.github.danishjamal104.notes.ui.fragment.note.adapter.DialogAction
 import com.github.danishjamal104.notes.ui.fragment.note.adapter.LabelAdapter
-import com.github.danishjamal104.notes.ui.labelcomponent.LabelComponent
+import com.github.danishjamal104.notes.ui.fragment.note.labelcomponent.LabelComponent
 import com.github.danishjamal104.notes.util.*
 import com.github.danishjamal104.notes.util.sharedpreference.EncryptionPreferences
 import com.google.android.material.chip.Chip

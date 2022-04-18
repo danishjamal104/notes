@@ -26,6 +26,32 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <com.google.android.material.chip.Chip
+            android:id="@+id/clear_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:chipSurfaceColor="@color/secondary"
+            android:text="@string/clear_filter"
+            android:textColor="@color/always_black"
+            android:scaleX="0.7"
+            android:scaleY="0.7"
+            android:visibility="gone"
+            app:layout_constraintEnd_toStartOf="@id/filter_button"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="@dimen/root_side_margin"
+            android:layout_marginEnd="-8dp"/>
+
+        <ImageButton
+            android:id="@+id/filter_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_baseline_filter_list_24"
+            android:backgroundTint="@android:color/transparent"
+            app:layout_constraintEnd_toStartOf="@id/action_button"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="@dimen/root_side_margin"
+            android:layout_marginEnd="8dp"/>
+
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             style="@style/Widget.App.FloatingActionButton"
             android:id="@+id/action_button"
@@ -40,6 +66,64 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <RelativeLayout
+        android:id="@+id/tag_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/header_constraint_layout"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/root_side_margin"
+            android:layout_marginEnd="@dimen/root_side_margin"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/counter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="0dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="8dp"
+                android:text="Tags"
+                android:textColor="@color/secondary"
+                android:textStyle="bold" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="1dp"
+                android:background="@color/black" />
+
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/divider">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chip_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/root_side_margin">
+
+            </com.google.android.material.chip.ChipGroup>
+
+        </ScrollView>
+
+
+    </RelativeLayout>
+
+
+
     <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/linear_progress"
         android:layout_width="match_parent"
@@ -50,8 +134,40 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/header_constraint_layout"
+        app:layout_constraintTop_toBottomOf="@+id/tag_container"
         app:layout_constraintVertical_bias="0.0" />
+
+    <LinearLayout
+        android:id="@+id/illustration"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linear_progress"
+        app:layout_constraintVertical_bias="0.37"
+        tools:ignore="UseCompoundDrawables">
+
+        <ImageView
+            android:id="@+id/empty_list_illustration"
+            android:layout_width="wrap_content"
+            android:layout_height="250dp"
+            android:src="@drawable/ic_no_note_illustration"
+            android:contentDescription="@string/illustration" />
+
+        <TextView
+            android:id="@+id/empty_list_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/root_side_margin"
+            android:text="@string/empty_notes_list_text"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:textSize="18sp" />
+
+    </LinearLayout>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh"
@@ -74,36 +190,6 @@
             android:visibility="visible"/>
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-    <LinearLayout
-        android:id="@+id/illustration"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linear_progress"
-        app:layout_constraintVertical_bias="0.37"
-        tools:ignore="UseCompoundDrawables">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="250dp"
-            android:src="@drawable/ic_no_note_illustration"
-            android:contentDescription="@string/illustration" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="@dimen/root_side_margin"
-            android:text="@string/your_notes_appear_here_try_adding_them_from_plus_icon"
-            android:textAlignment="center"
-            android:textColor="@color/black"
-            android:textSize="18sp" />
-
-    </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         style="@style/Widget.App.FloatingActionButton.Circular"

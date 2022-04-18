@@ -8,6 +8,7 @@ interface LabelRepository {
     suspend fun createLabel(labelName: String): ServiceResult<Label>
     suspend fun deleteLabel(label: Label): ServiceResult<Label>
     suspend fun updateLabel(label: Label): ServiceResult<Label>
+    suspend fun fetchAllLabel(): ServiceResult<List<Label>>
 
     suspend fun fetchAllLabel(note: Note): ServiceResult<List<Label>>
     suspend fun getLabelOfNote(note: Note): ServiceResult<List<Label>>
