@@ -1,6 +1,6 @@
 package com.github.danishjamal104.notes.util.encryption
 
-import android.annotation.SuppressLint
+import android.os.Build
 import android.security.keystore.KeyProperties
 import com.github.danishjamal104.notes.util.encodeToBase64
 import com.github.danishjamal104.notes.util.toSHA1
@@ -15,7 +15,6 @@ import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.PBEKeySpec
 import javax.crypto.spec.SecretKeySpec
 
-@SuppressLint("NewApi")
 object EncryptionHelper {
 
     /**
@@ -59,7 +58,7 @@ object EncryptionHelper {
      * @param size length of the password defaults to 8
      * @return [String] the random password as plain text
      */
-    fun generatePassword(size: Int = 8): String {
+    private fun generatePassword(size: Int = 8): String {
         val set = ('a'..'z').toMutableList() +
                 ('A'..'Z').toMutableList() +
                 ('0'..'9').toMutableList()
@@ -91,7 +90,12 @@ object EncryptionHelper {
      * @return [SecretKey] An instance of the [SecretKey]
      */
     fun getKeyFromPassword(password: String, salt: String): SecretKey {
-        val factory: SecretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
+        val algorithm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            "PBKDF2WithHmacSHA256"
+        } else {
+            "PBKDF2withHmacSHA1And8BIT"
+        }
+        val factory: SecretKeyFactory = SecretKeyFactory.getInstance(algorithm)
         val spec: KeySpec = PBEKeySpec(
             password.toCharArray(), salt.toByteArray(), 65536, 256)
         return SecretKeySpec(
@@ -128,7 +132,11 @@ object EncryptionHelper {
      */
     fun encryptFromCipher(input: String, cipher: Cipher): String {
         val cipherText: ByteArray = cipher.doFinal(input.toByteArray())
-        return Base64.getEncoder().encodeToString(cipherText)
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Base64.getEncoder().encodeToString(cipherText)
+        } else {
+            android.util.Base64.encodeToString(cipherText, android.util.Base64.DEFAULT)
+        }
     }
 
     /**
@@ -138,10 +146,13 @@ object EncryptionHelper {
      * @return [String] decrypted data as a plain text
      */
     fun decryptFromCipher(cipherText: String, cipher: Cipher): String {
-        val plainText = cipher.doFinal(
+        val data = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Base64.getDecoder()
                 .decode(cipherText)
-        )
+        } else {
+            android.util.Base64.decode(cipherText, android.util.Base64.DEFAULT)
+        }
+        val plainText = cipher.doFinal(data)
         return String(plainText)
     }
 
