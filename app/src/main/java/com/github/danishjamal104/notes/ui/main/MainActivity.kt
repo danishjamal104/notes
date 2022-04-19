@@ -77,7 +77,6 @@ class MainActivity : AppCompatActivity() {
                         "You are about to restore the notes from backup. This will remove all the existing notes."
                     ) {
                         restoreBackup(uri, key)
-                        shortToast("Restore scheduled")
                     }
                 }
             }
@@ -159,7 +158,7 @@ class MainActivity : AppCompatActivity() {
                             .addTag("HOME FRAGMENT")
                             .setInputData(data).build()
                         workManager.enqueue(request)
-                        shortToast("Backup scheduled")
+                        longToast("Backup scheduled. Check notification for status")
                     }
                 }
             }
@@ -236,6 +235,7 @@ class MainActivity : AppCompatActivity() {
                 .addTag("HOME ACTIVITY")
                 .setInputData(data).build()
             workManager.enqueue(request)
+            longToast("Restore scheduled. Check notification for status")
         }
     }
 

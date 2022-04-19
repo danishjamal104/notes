@@ -7,7 +7,6 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.util.Base64
 import android.view.View
-import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.RelativeLayout
 import android.widget.Toast
@@ -183,7 +182,7 @@ fun Fragment.performActionThroughSecuredChannel(
     biometricPrompt.authenticate(promptInfo)
 }
 
-fun Activity.performActionThroughSecuredChannel(success: () -> Unit) {
+fun Context.performActionThroughSecuredChannel(success: () -> Unit) {
     val title = "Requires authentication"
     val subtitle =
         "You are trying to access/perform secured content/task which require authentication"
@@ -194,30 +193,6 @@ fun Activity.performActionThroughSecuredChannel(success: () -> Unit) {
         .build()
     val executor = ContextCompat.getMainExecutor(this)
     val biometricPrompt = BiometricPrompt(this as FragmentActivity, executor,
-        object : BiometricPrompt.AuthenticationCallback() {
-
-            override fun onAuthenticationSucceeded(
-                result: BiometricPrompt.AuthenticationResult
-            ) {
-                super.onAuthenticationSucceeded(result)
-                success.invoke()
-            }
-
-        })
-    biometricPrompt.authenticate(promptInfo)
-}
-
-fun Fragment.performActionThroughSecuredChannel(success: () -> Unit) {
-    val title = "Requires authentication"
-    val subtitle =
-        "You are trying to access/perform secured content/task which require authentication"
-    val promptInfo = BiometricPrompt.PromptInfo.Builder()
-        .setTitle(title)
-        .setSubtitle(subtitle)
-        .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
-        .build()
-    val executor = ContextCompat.getMainExecutor(requireContext())
-    val biometricPrompt = BiometricPrompt(this, executor,
         object : BiometricPrompt.AuthenticationCallback() {
             override fun onAuthenticationError(
                 errorCode: Int,
@@ -240,4 +215,8 @@ fun Fragment.performActionThroughSecuredChannel(success: () -> Unit) {
             }
         })
     biometricPrompt.authenticate(promptInfo)
+}
+
+fun Fragment.performActionThroughSecuredChannel(success: () -> Unit) {
+    requireContext().performActionThroughSecuredChannel(success)
 }
