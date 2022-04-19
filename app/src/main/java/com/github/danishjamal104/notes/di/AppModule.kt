@@ -1,9 +1,12 @@
 package com.github.danishjamal104.notes.di
 
+import android.Manifest
 import android.content.Context
 import androidx.work.WorkManager
 import com.github.danishjamal104.notes.ui.Notes
 import com.github.danishjamal104.notes.ui.fragment.home.adapter.NotesAdapter
+import com.github.danishjamal104.notes.util.AppConstant
+import com.github.danishjamal104.notes.util.SystemManager
 import com.github.danishjamal104.notes.util.sharedpreference.EncryptionPreferences
 import com.github.danishjamal104.notes.util.sharedpreference.UserPreferences
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -15,6 +18,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
@@ -72,6 +76,24 @@ object AppModule {
     @Provides
     fun provideWorkManager(@ApplicationContext context: Context): WorkManager {
         return WorkManager.getInstance(context)
+    }
+
+    @Singleton
+    @Provides
+    @Named(AppConstant.PERMISSION_ARRAY)
+    fun providePermissionArray(): List<String> {
+        return listOf(
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        )
+    }
+
+    @Singleton
+    @Provides
+    fun provideSystemManager(
+        @ApplicationContext ctx: Context,
+        @Named(AppConstant.PERMISSION_ARRAY) permission: List<String>
+    ): SystemManager {
+        return SystemManager(ctx, permission)
     }
 
 }

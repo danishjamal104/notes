@@ -44,7 +44,12 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var workManager: WorkManager
 
+    @Inject
+    lateinit var systemManager: SystemManager
+
     private lateinit var launcher: ActivityResultLauncher<Intent>
+
+    private var taskAfterPermission: ((permissionGranted: Boolean) -> Unit)? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -135,17 +140,33 @@ class MainActivity : AppCompatActivity() {
         binding.backupButton.disable()
         binding.restoreButton.disable()
 
+        val permissionLauncher =
+            systemManager.registerPermissionLauncher(this) { permissionGranted ->
+                taskAfterPermission?.invoke(permissionGranted)
+            }
+
         // setting up click listener
         binding.backupButton.setOnClickListener {
-            performActionThroughSecuredChannel {
-                val key = EncryptionHelper.generateEncryptionKey()
-                Log.i("SECUREDINFO", key)
-                val data = Data.Builder().putString(AppConstant.Worker.KEY, key).build()
-                val request = OneTimeWorkRequestBuilder<BackupWorker>()
-                    .addTag("HOME FRAGMENT")
-                    .setInputData(data).build()
-                workManager.enqueue(request)
-                shortToast("Backup scheduled")
+            taskAfterPermission = { permissionGranted ->
+                if (!permissionGranted) {
+                    shortToast("Need storage access to perform backup")
+                } else {
+                    performActionThroughSecuredChannel {
+                        val key = EncryptionHelper.generateEncryptionKey()
+                        Log.i("SECUREDINFO", key)
+                        val data = Data.Builder().putString(AppConstant.Worker.KEY, key).build()
+                        val request = OneTimeWorkRequestBuilder<BackupWorker>()
+                            .addTag("HOME FRAGMENT")
+                            .setInputData(data).build()
+                        workManager.enqueue(request)
+                        shortToast("Backup scheduled")
+                    }
+                }
+            }
+            if (systemManager.checkPermission()) {
+                taskAfterPermission!!.invoke(true)
+            } else {
+                systemManager.launchPermissionIntent(permissionLauncher)
             }
         }
 
