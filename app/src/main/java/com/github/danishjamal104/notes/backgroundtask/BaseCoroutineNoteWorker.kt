@@ -138,7 +138,7 @@ abstract class BaseCoroutineNoteWorker(ctx: Context, params: WorkerParameters) :
             .setContentIntent(pendingIntent)
             .setProgress(maxProgress, progress, false)
             .setOngoing(true)
-            .addAction(R.mipmap.ic_launcher, "Cancel", cancelIntent)
+            .addAction(R.drawable.outline_clear_black_24, "Cancel", cancelIntent)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
 
         return ForegroundInfo(id, builder.build())

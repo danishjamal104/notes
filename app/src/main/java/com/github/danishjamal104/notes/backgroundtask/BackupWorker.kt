@@ -174,7 +174,7 @@ class BackupWorker(ctx: Context, params: WorkerParameters) : BaseCoroutineNoteWo
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
-            .addAction(R.mipmap.ic_launcher, "Copy EncryptionKey", pendingIntent)
+            .addAction(R.drawable.outline_content_copy_black_24, "Copy EncryptionKey", pendingIntent)
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))
             .setVibrate(LongArray(0))
 
