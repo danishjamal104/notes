@@ -2,13 +2,16 @@ package com.github.danishjamal104.notes.backgroundtask
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.net.toUri
 import androidx.work.WorkerParameters
 import com.github.danishjamal104.notes.R
 import com.github.danishjamal104.notes.data.backupandrestore.BackupHelper
@@ -26,7 +29,6 @@ import java.io.File
 import java.io.FileWriter
 import java.io.IOException
 
-@Suppress("DEPRECATION")
 class BackupWorker(ctx: Context, params: WorkerParameters) : BaseCoroutineNoteWorker(ctx, params) {
 
     lateinit var key: String
@@ -94,11 +96,7 @@ class BackupWorker(ctx: Context, params: WorkerParameters) : BaseCoroutineNoteWo
      */
     private fun storeBackupDataToFile(sFileName: String, sBody: String): ServiceResult<File> {
         return try {
-            val root = File(
-                Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_DOCUMENTS
-                ), "/Notes/Backup"
-            )
+            val root = File(applicationContext.getExternalFilesDir("Backup"), "")
             if (!root.exists()) {
                 root.mkdirs()
             }
@@ -134,17 +132,34 @@ class BackupWorker(ctx: Context, params: WorkerParameters) : BaseCoroutineNoteWo
                 userPreferences.getUserId(),
                 keyProcessor.rotationFactor
             )
-            val zip = File(
-                Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_DOCUMENTS
-                ), getBackupLocation(filename, "zip")
-            )
+            val zip = File(applicationContext.getExternalFilesDir("Backup"), "$filename.zip")
             ZipFile(zip, pwd.toCharArray()).addFile(file, zipParameters)
-            ServiceResult.Success(zip.absolutePath)
+            moveFileFromInternalToExternalStorage(zip, filename)
+            zip.delete()
+            ServiceResult.Success("Downloads/$filename.zip")
         } catch (e: IOException) {
             e.printStackTrace()
             Log.i("SECUREDINFO", "Error info " + e.localizedMessage)
             ServiceResult.Error("Unable to secure zip")
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun moveFileFromInternalToExternalStorage(file: File, filename: String) {
+        val ins = applicationContext.contentResolver.openInputStream(file.toUri())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val resolver = applicationContext.contentResolver
+            val contentValues = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, "$filename.zip")
+            }
+            val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+            resolver.openOutputStream(uri!!).use {
+                it!!.write(ins!!.readBytes())
+            }
+        } else {
+            val fl = File(Environment
+                .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "$filename.zip")
+            fl.writeBytes(ins!!.readBytes())
         }
     }
 

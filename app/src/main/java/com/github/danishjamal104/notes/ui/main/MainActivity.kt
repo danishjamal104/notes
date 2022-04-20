@@ -3,6 +3,7 @@ package com.github.danishjamal104.notes.ui.main
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.text.InputType
 import android.text.TextUtils
@@ -146,20 +147,15 @@ class MainActivity : AppCompatActivity() {
 
         // setting up click listener
         binding.backupButton.setOnClickListener {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                createBackup()
+                return@setOnClickListener
+            }
             taskAfterPermission = { permissionGranted ->
                 if (!permissionGranted) {
                     shortToast("Need storage access to perform backup")
                 } else {
-                    performActionThroughSecuredChannel {
-                        val key = EncryptionHelper.generateEncryptionKey()
-                        Log.i("SECUREDINFO", key)
-                        val data = Data.Builder().putString(AppConstant.Worker.KEY, key).build()
-                        val request = OneTimeWorkRequestBuilder<BackupWorker>()
-                            .addTag("HOME FRAGMENT")
-                            .setInputData(data).build()
-                        workManager.enqueue(request)
-                        longToast("Backup scheduled. Check notification for status")
-                    }
+                    createBackup()
                 }
             }
             if (systemManager.checkPermission()) {
@@ -186,6 +182,19 @@ class MainActivity : AppCompatActivity() {
     private fun hideMotionLayout() {
         binding.root.getTransition(R.id.start_to_end).isEnabled = false
         binding.backupRestoreImage.visibility = View.GONE
+    }
+
+    private fun createBackup() {
+        performActionThroughSecuredChannel {
+            val key = EncryptionHelper.generateEncryptionKey()
+            Log.i("SECUREDINFO", key)
+            val data = Data.Builder().putString(AppConstant.Worker.KEY, key).build()
+            val request = OneTimeWorkRequestBuilder<BackupWorker>()
+                .addTag("HOME FRAGMENT")
+                .setInputData(data).build()
+            workManager.enqueue(request)
+            longToast("Backup scheduled. Check notification for status")
+        }
     }
 
     private fun takeEncryptionKeyInput(result: (key: String) -> Unit) {
