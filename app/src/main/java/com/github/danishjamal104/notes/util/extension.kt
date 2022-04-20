@@ -218,5 +218,5 @@ fun Context.performActionThroughSecuredChannel(success: () -> Unit) {
 }
 
 fun Fragment.performActionThroughSecuredChannel(success: () -> Unit) {
-    requireContext().performActionThroughSecuredChannel(success)
+    requireActivity().performActionThroughSecuredChannel(success)
 }
