@@ -3,6 +3,7 @@ package com.github.danishjamal104.notes.ui.main
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.text.InputType
 import android.text.TextUtils
@@ -44,7 +45,12 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var workManager: WorkManager
 
+    @Inject
+    lateinit var systemManager: SystemManager
+
     private lateinit var launcher: ActivityResultLauncher<Intent>
+
+    private var taskAfterPermission: ((permissionGranted: Boolean) -> Unit)? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,7 +78,6 @@ class MainActivity : AppCompatActivity() {
                         "You are about to restore the notes from backup. This will remove all the existing notes."
                     ) {
                         restoreBackup(uri, key)
-                        shortToast("Restore scheduled")
                     }
                 }
             }
@@ -135,17 +140,28 @@ class MainActivity : AppCompatActivity() {
         binding.backupButton.disable()
         binding.restoreButton.disable()
 
+        val permissionLauncher =
+            systemManager.registerPermissionLauncher(this) { permissionGranted ->
+                taskAfterPermission?.invoke(permissionGranted)
+            }
+
         // setting up click listener
         binding.backupButton.setOnClickListener {
-            performActionThroughSecuredChannel {
-                val key = EncryptionHelper.generateEncryptionKey()
-                Log.i("SECUREDINFO", key)
-                val data = Data.Builder().putString(AppConstant.Worker.KEY, key).build()
-                val request = OneTimeWorkRequestBuilder<BackupWorker>()
-                    .addTag("HOME FRAGMENT")
-                    .setInputData(data).build()
-                workManager.enqueue(request)
-                shortToast("Backup scheduled")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                createBackup()
+                return@setOnClickListener
+            }
+            taskAfterPermission = { permissionGranted ->
+                if (!permissionGranted) {
+                    shortToast("Need storage access to perform backup")
+                } else {
+                    createBackup()
+                }
+            }
+            if (systemManager.checkPermission()) {
+                taskAfterPermission!!.invoke(true)
+            } else {
+                systemManager.launchPermissionIntent(permissionLauncher)
             }
         }
 
@@ -166,6 +182,19 @@ class MainActivity : AppCompatActivity() {
     private fun hideMotionLayout() {
         binding.root.getTransition(R.id.start_to_end).isEnabled = false
         binding.backupRestoreImage.visibility = View.GONE
+    }
+
+    private fun createBackup() {
+        performActionThroughSecuredChannel {
+            val key = EncryptionHelper.generateEncryptionKey()
+            Log.i("SECUREDINFO", key)
+            val data = Data.Builder().putString(AppConstant.Worker.KEY, key).build()
+            val request = OneTimeWorkRequestBuilder<BackupWorker>()
+                .addTag("HOME FRAGMENT")
+                .setInputData(data).build()
+            workManager.enqueue(request)
+            longToast("Backup scheduled. Check notification for status")
+        }
     }
 
     private fun takeEncryptionKeyInput(result: (key: String) -> Unit) {
@@ -215,6 +244,7 @@ class MainActivity : AppCompatActivity() {
                 .addTag("HOME ACTIVITY")
                 .setInputData(data).build()
             workManager.enqueue(request)
+            longToast("Restore scheduled. Check notification for status")
         }
     }
 

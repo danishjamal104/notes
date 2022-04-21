@@ -13,7 +13,7 @@ import com.github.danishjamal104.notes.data.local.dao.UserDao
 
 @Database(
     entities = [NoteCacheEntity::class, UserCacheEntity::class, LabelCacheEntity::class, NoteLabelJoinEntity::class],
-    version = 3
+    version = 2
 )
 abstract class Database : RoomDatabase() {
 

@@ -5,9 +5,9 @@ import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.os.Build
 import android.util.Base64
 import android.view.View
-import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.ImageButton
 import android.widget.RelativeLayout
@@ -157,14 +157,7 @@ fun Fragment.performActionThroughSecuredChannel(
     success: () -> Unit,
     failed: () -> Unit
 ) {
-    val title = "Requires authentication"
-    val subtitle =
-        "You are trying to access/perform secured content/task which require authentication"
-    val promptInfo = BiometricPrompt.PromptInfo.Builder()
-        .setTitle(title)
-        .setSubtitle(subtitle)
-        .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
-        .build()
+    val promptInfo = getVersionSpecificBiometricPromptInfo()
     val executor = ContextCompat.getMainExecutor(requireContext())
     val biometricPrompt = BiometricPrompt(this, executor,
         object : BiometricPrompt.AuthenticationCallback() {
@@ -191,41 +184,10 @@ fun Fragment.performActionThroughSecuredChannel(
     biometricPrompt.authenticate(promptInfo)
 }
 
-fun Activity.performActionThroughSecuredChannel(success: () -> Unit) {
-    val title = "Requires authentication"
-    val subtitle =
-        "You are trying to access/perform secured content/task which require authentication"
-    val promptInfo = BiometricPrompt.PromptInfo.Builder()
-        .setTitle(title)
-        .setSubtitle(subtitle)
-        .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
-        .build()
+fun Context.performActionThroughSecuredChannel(success: () -> Unit) {
+    val promptInfo = getVersionSpecificBiometricPromptInfo()
     val executor = ContextCompat.getMainExecutor(this)
     val biometricPrompt = BiometricPrompt(this as FragmentActivity, executor,
-        object : BiometricPrompt.AuthenticationCallback() {
-
-            override fun onAuthenticationSucceeded(
-                result: BiometricPrompt.AuthenticationResult
-            ) {
-                super.onAuthenticationSucceeded(result)
-                success.invoke()
-            }
-
-        })
-    biometricPrompt.authenticate(promptInfo)
-}
-
-fun Fragment.performActionThroughSecuredChannel(success: () -> Unit) {
-    val title = "Requires authentication"
-    val subtitle =
-        "You are trying to access/perform secured content/task which require authentication"
-    val promptInfo = BiometricPrompt.PromptInfo.Builder()
-        .setTitle(title)
-        .setSubtitle(subtitle)
-        .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
-        .build()
-    val executor = ContextCompat.getMainExecutor(requireContext())
-    val biometricPrompt = BiometricPrompt(this, executor,
         object : BiometricPrompt.AuthenticationCallback() {
             override fun onAuthenticationError(
                 errorCode: Int,
@@ -248,4 +210,25 @@ fun Fragment.performActionThroughSecuredChannel(success: () -> Unit) {
             }
         })
     biometricPrompt.authenticate(promptInfo)
+}
+
+fun Fragment.performActionThroughSecuredChannel(success: () -> Unit) {
+    requireActivity().performActionThroughSecuredChannel(success)
+}
+
+private fun getVersionSpecificBiometricPromptInfo(): BiometricPrompt.PromptInfo {
+    val title = "Requires authentication"
+    val subtitle =
+        "You are trying to access/perform secured content/task which require authentication"
+    var promptBuilder = BiometricPrompt.PromptInfo.Builder()
+        .setTitle(title)
+        .setSubtitle(subtitle)
+    if (Build.VERSION.SDK_INT in listOf(Build.VERSION_CODES.P, Build.VERSION_CODES.Q)) {
+        promptBuilder.setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+            .setNegativeButtonText("Cancel")
+    } else {
+        promptBuilder.setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG or
+                BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+    }
+    return promptBuilder.build()
 }

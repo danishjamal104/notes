@@ -2,6 +2,7 @@ package com.github.danishjamal104.notes.util
 
 object AppConstant {
     const val NOTE_ID_KEY = "noteId"
+    const val PERMISSION_ARRAY = "permissionArray"
 
     object Database {
         const val DB_NAME = "NOTES-ROOT-TABLE"
