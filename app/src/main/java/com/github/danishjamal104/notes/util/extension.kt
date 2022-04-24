@@ -120,6 +120,18 @@ fun Context.showDefaultMaterialAlert(
         .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }.create().show()
 }
 
+fun Context.showDefaultMaterialAlert(
+    title: String,
+    message: String,
+    positiveButtonPress: () -> Unit,
+    negativeButtonPress: () -> Unit
+) {
+    MaterialAlertDialogBuilder(this)
+        .setTitle(title).setMessage(message)
+        .setPositiveButton("Yes") { _, _ -> positiveButtonPress.invoke() }
+        .setNegativeButton("Cancel") { _, _ -> negativeButtonPress.invoke() }.create().show()
+}
+
 fun Context.hideKeyboard(view: View) {
     val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
     inputMethodManager.hideSoftInputFromWindow(view.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)

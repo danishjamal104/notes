@@ -175,7 +175,16 @@ class NoteFragment : Fragment(R.layout.fragment_note), DialogAction {
             }
         }
         binding.backButton.setOnClickListener {
-            findNavController().navigate(R.id.action_noteFragment_to_homeFragment)
+            if(binding.noteTitle.text?.isEmpty() != false && binding.note.text?.isEmpty() != false) {
+                findNavController().navigate(R.id.action_noteFragment_to_homeFragment)
+                return@setOnClickListener
+            }
+            requireContext().showDefaultMaterialAlert(
+                "Confirm",
+                "Do you want to discard your changes"
+            ) {
+                findNavController().navigate(R.id.action_noteFragment_to_homeFragment)
+            }
         }
         binding.unlockButton.setOnClickListener {
             performActionThroughSecuredChannel {
