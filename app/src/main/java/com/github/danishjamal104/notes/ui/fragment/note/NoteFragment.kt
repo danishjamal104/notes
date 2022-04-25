@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -48,6 +49,11 @@ class NoteFragment : Fragment(R.layout.fragment_note), DialogAction {
     private var isScreenLocked = false
 
     private lateinit var labelComponent: LabelComponent
+
+    private var isNoteValueChanged = false
+    private var isNoteTitleChanged = false
+    private val hasDataChanged get() = isNoteTitleChanged || isNoteValueChanged
+    private var noteHash: String = ""
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -175,15 +181,27 @@ class NoteFragment : Fragment(R.layout.fragment_note), DialogAction {
             }
         }
         binding.backButton.setOnClickListener {
-            if(binding.noteTitle.text?.isEmpty() != false && binding.note.text?.isEmpty() != false) {
+            val isExecuted = executeIfNoteIdIsNegativeOne {
+                val title = binding.noteTitle.text.toString().trim()
+                val noteValue = binding.note.text.toString().trim()
+                if(title.isEmpty() && noteValue.isEmpty()) {
+                    findNavController().navigate(R.id.action_noteFragment_to_homeFragment)
+                    return@executeIfNoteIdIsNegativeOne true
+                }
+                false
+            }
+            if(!isExecuted && !hasDataChanged) {
                 findNavController().navigate(R.id.action_noteFragment_to_homeFragment)
                 return@setOnClickListener
             }
-            requireContext().showDefaultMaterialAlert(
-                "Confirm",
-                "Do you want to discard your changes"
-            ) {
-                findNavController().navigate(R.id.action_noteFragment_to_homeFragment)
+            if(!isExecuted) {
+                requireContext().showDefaultMaterialAlert(
+                    "Confirm",
+                    "Do you want to discard your changes"
+                ) {
+                    findNavController().navigate(R.id.action_noteFragment_to_homeFragment)
+                    hideKeyboard()
+                }
             }
         }
         binding.unlockButton.setOnClickListener {
@@ -195,8 +213,6 @@ class NoteFragment : Fragment(R.layout.fragment_note), DialogAction {
     }
 
     private fun registerTextWatcher() {
-        var isNoteValueChanged = false
-        var isNoteTitleChanged = false
         val noteTextWatcher = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
@@ -204,24 +220,24 @@ class NoteFragment : Fragment(R.layout.fragment_note), DialogAction {
                 if (isScreenLocked) {
                     return
                 }
-                val newText = s.toString().trim().encodeToBase64()
+                val newText = s.toString().trim()
                 if (isNoteInitialised()) {
-                    isNoteValueChanged = if (newText == note.value && !isNoteTitleChanged) {
-                        binding.saveButton.gone()
-                        false
-                    } else {
+                    isNoteValueChanged = hasNoteTextChanged(newText)
+                    if (hasDataChanged) {
                         binding.saveButton.visible()
-                        true
+                    } else {
+                        binding.saveButton.gone()
                     }
                 }
-                noteId?.let {
-                    if (it == -1) {
-                        if (newText.isEmpty()) {
-                            binding.saveButton.gone()
-                        } else {
-                            binding.saveButton.visible()
-                        }
+                executeIfNoteIdIsNegativeOne {
+                    isNoteValueChanged = newText.isNotEmpty()
+                    Log.i("hasDataChanged", "" + hasDataChanged)
+                    if(hasDataChanged) {
+                        binding.saveButton.visible()
+                    } else {
+                        binding.saveButton.gone()
                     }
+                    true
                 }
             }
         }
@@ -234,19 +250,42 @@ class NoteFragment : Fragment(R.layout.fragment_note), DialogAction {
                 }
                 val newTitle = s.toString().trim()
                 if (isNoteInitialised()) {
-                    isNoteTitleChanged = if (newTitle == note.title && !isNoteValueChanged) {
-                        binding.saveButton.gone()
-                        false
-                    } else {
+                    isNoteTitleChanged = newTitle != note.title
+                    if(hasDataChanged) {
                         binding.saveButton.visible()
-                        true
+                    } else {
+                        binding.saveButton.gone()
                     }
+                }
+                executeIfNoteIdIsNegativeOne {
+                    isNoteTitleChanged = newTitle.isNotEmpty()
+                    Log.i("hasDataChanged", "" + hasDataChanged)
+                    if(hasDataChanged) {
+                        binding.saveButton.visible()
+                    } else {
+                        binding.saveButton.gone()
+                    }
+                    true
                 }
             }
 
         }
         binding.note.addTextChangedListener(noteTextWatcher)
         binding.noteTitle.addTextChangedListener(noteTitleTextWatcher)
+    }
+
+    private fun hasNoteTextChanged(newText: String): Boolean {
+        return newText.toSHA1() != noteHash
+    }
+
+    private fun executeIfNoteIdIsNegativeOne(block: () -> Boolean): Boolean {
+         return noteId?.let {
+            return if(it == -1) {
+                block.invoke()
+            } else {
+                false
+            }
+        } ?: false
     }
 
     private fun createNote() {
@@ -372,7 +411,9 @@ class NoteFragment : Fragment(R.layout.fragment_note), DialogAction {
         isScreenLocked = false
         binding.lockScreenContainer.gone()
         enableEditableFields()
-        setData(note.value.decrypt(encryptionPreferences.key), note.title)
+        val decryptedData = note.value.decrypt(encryptionPreferences.key)
+        noteHash = decryptedData.toSHA1()
+        setData(decryptedData, note.title)
     }
 
     private fun setData(noteData: String, noteTitle: String) {
