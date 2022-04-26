@@ -66,20 +66,23 @@ constructor(
                 noteLabel = res.data
             }
         }
-        return try {
-            val allLabels = cacheDataSource.getLabels(userId)
-            allLabels.forEach { allLabel ->
-                val match = noteLabel.find { noteLabel ->
-                    noteLabel.id == allLabel.id
+
+        return when(val allLabelsResult = fetchAllLabel()) {
+            is ServiceResult.Error -> ServiceResult.Error(allLabelsResult.reason)
+            is ServiceResult.Success -> {
+                val allLabels = allLabelsResult.data
+                allLabels.forEach { allLabel ->
+                    val match = noteLabel.find { noteLabel ->
+                        noteLabel.id == allLabel.id
+                    }
+                    match?.let {
+                        allLabel.checked = true
+                    }
                 }
-                match?.let {
-                    allLabel.checked = true
-                }
+                ServiceResult.Success(allLabels)
             }
-            ServiceResult.Success(allLabels)
-        } catch (e: Exception) {
-            ServiceResult.Error(""+e.localizedMessage)
         }
+
     }
 
     override suspend fun getLabelOfNote(note: Note): ServiceResult<List<Label>> {
