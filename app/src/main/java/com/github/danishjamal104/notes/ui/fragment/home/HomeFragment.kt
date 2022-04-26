@@ -109,23 +109,11 @@ class HomeFragment : Fragment(R.layout.fragment_home), ItemClickListener<Note> {
             viewModel.setEvent(HomeEvent.GetNotes)
         }
         binding.filterButton.setOnClickListener {
-            binding.emptyListText.text = requireContext().getString(R.string.empty_filter_text)
-            binding.emptyListIllustration.setImageDrawable(
-                ContextCompat.getDrawable(
-                    requireContext(),
-                    R.drawable.ic_empty_illustration
-                )
-            )
+            adapter.createBackup()
             viewModel.setEvent(HomeEvent.GetLabels)
         }
         binding.clearFilter.setOnClickListener {
-            binding.emptyListText.text = requireContext().getString(R.string.empty_notes_list_text)
-            binding.emptyListIllustration.setImageDrawable(
-                ContextCompat.getDrawable(
-                    requireContext(),
-                    R.drawable.ic_no_note_illustration
-                )
-            )
+            adapter.restore()
             hideFilterLayout()
             adapter.clearAll()
             viewModel.setEvent(HomeEvent.GetNotes)
@@ -153,6 +141,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), ItemClickListener<Note> {
     }
 
     private fun handleGetNotesByLabelResult(state: HomeState.GetNotesByLabelResult) {
+        hideProgress()
         if (state.success) {
             adapter.clearAll()
             val notes = state.notes!!
@@ -163,7 +152,6 @@ class HomeFragment : Fragment(R.layout.fragment_home), ItemClickListener<Note> {
         } else {
             longToast("Unable to apply filter")
         }
-        hideProgress()
     }
 
     private fun handleGetLabelResult(state: HomeState.GetLabelResult) {
@@ -208,11 +196,25 @@ class HomeFragment : Fragment(R.layout.fragment_home), ItemClickListener<Note> {
     private fun showFilterLayout() {
         binding.tagContainer.visible()
         binding.clearFilter.visible()
+        binding.emptyListText.text = requireContext().getString(R.string.empty_filter_text)
+        binding.emptyListIllustration.setImageDrawable(
+            ContextCompat.getDrawable(
+                requireContext(),
+                R.drawable.ic_empty_illustration
+            )
+        )
     }
 
     private fun hideFilterLayout() {
         binding.tagContainer.gone()
         binding.clearFilter.gone()
+        binding.emptyListText.text = requireContext().getString(R.string.empty_notes_list_text)
+        binding.emptyListIllustration.setImageDrawable(
+            ContextCompat.getDrawable(
+                requireContext(),
+                R.drawable.ic_no_note_illustration
+            )
+        )
     }
 
     private fun updateLabels(labels: List<Label>) {

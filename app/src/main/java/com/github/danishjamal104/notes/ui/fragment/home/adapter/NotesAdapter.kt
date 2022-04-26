@@ -28,6 +28,7 @@ constructor(val context: Context): RecyclerView.Adapter<NotesAdapter.NoteViewHol
     @SuppressLint("SimpleDateFormat")
     private val sdf = SimpleDateFormat("MMM dd, yyyy")
     private val data = mutableListOf<Note>()
+    private val backup = mutableListOf<Note>()
 
     var emptyView: View? = null
     var itemClickListener: ItemClickListener<Note>? = null
@@ -80,6 +81,16 @@ constructor(val context: Context): RecyclerView.Adapter<NotesAdapter.NoteViewHol
         data.clear()
         notifyItemRangeRemoved(0, size)
         emptyView?.visible()
+    }
+
+    fun createBackup() {
+        backup.clear()
+        backup.addAll(data)
+    }
+
+    fun restore() {
+        data.clear()
+        addNotes(backup)
     }
 
     private fun getRandomColorInt(): Int {

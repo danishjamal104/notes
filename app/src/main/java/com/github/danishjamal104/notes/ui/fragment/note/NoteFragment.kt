@@ -116,7 +116,6 @@ class NoteFragment : Fragment(R.layout.fragment_note), DialogAction {
                 is LabelState.Info -> longToast(it.info)
                 is LabelState.GetLabelFailure -> longToast(it.reason)
                 is LabelState.GetLabelSuccess -> {
-                    shortToast("${it.labels.size} labels loaded")
                     updateLabels(it.labels)
                 }
                 is LabelState.CreateLabelResult -> {
@@ -129,7 +128,6 @@ class NoteFragment : Fragment(R.layout.fragment_note), DialogAction {
                 is LabelState.GetAllLabelResult -> {
                     if (it.success) {
                         it.labels!!
-                        shortToast("Adding ${it.labels.size} labels")
                         labelAdapter.setData(it.labels)
                     } else {
                         longToast(it.reason!!)

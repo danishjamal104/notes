@@ -31,4 +31,5 @@
     <string name="screen_lock">Screen Lock</string>
     <string name="clear_filter">Clear Filter</string>
     <string name="no_label_filter_info_text">You don\'t have any labels to apply filter. Try creating them from respective note.</string>
+    <string name="labels">Labels</string>
 </resources>
