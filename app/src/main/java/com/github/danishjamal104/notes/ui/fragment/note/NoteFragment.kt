@@ -50,7 +50,7 @@ class NoteFragment : Fragment(R.layout.fragment_note), DialogAction {
 
     private lateinit var labelComponent: LabelComponent
 
-    private val labelsToAdd: MutableList<Label> = mutableListOf()
+    private val labelsInNoteChip: MutableList<Label> = mutableListOf()
 
     private var isNoteValueChanged = false
     private var isNoteTitleChanged = false
@@ -120,13 +120,14 @@ class NoteFragment : Fragment(R.layout.fragment_note), DialogAction {
                 is LabelState.GetLabelFailure -> longToast(it.reason)
                 is LabelState.GetLabelSuccess -> {
                     updateLabels(it.labels)
+                    labelsInNoteChip.addAll(it.labels)
                 }
                 is LabelState.CreateLabelResult -> {
                     if (it.success) {
                         labelAdapter.add(it.label!!)
                         if(!isNoteInitialised()) {
-                            labelsToAdd.add(it.label)
-                            updateLabels(labelsToAdd)
+                            labelsInNoteChip.add(it.label)
+                            updateLabels(labelsInNoteChip)
                         }
                     } else {
                         longToast(it.reason!!)
@@ -136,8 +137,8 @@ class NoteFragment : Fragment(R.layout.fragment_note), DialogAction {
                     if (it.success) {
                         it.labels!!
                         labelAdapter.setData(it.labels)
-                        if (!isNoteInitialised() && labelsToAdd.isNotEmpty()) {
-                            labelsToAdd.forEach { lb ->
+                        if (!isNoteInitialised() && labelsInNoteChip.isNotEmpty()) {
+                            labelsInNoteChip.forEach { lb ->
                                 labelAdapter.updateLabel(lb.id, checked = lb.checked)
                             }
                         }
@@ -180,7 +181,7 @@ class NoteFragment : Fragment(R.layout.fragment_note), DialogAction {
         binding.deleteButton.setOnClickListener {
             if (this::note.isInitialized) {
                 performActionThroughSecuredChannel {
-                    viewModel.setEvent(NoteEvent.DeleteNote(note))
+                    viewModel.setEvent(NoteEvent.DeleteNote(note, labelsInNoteChip))
                 }
             } else {
                 clearText()
@@ -464,9 +465,9 @@ class NoteFragment : Fragment(R.layout.fragment_note), DialogAction {
     override fun updateLabelCheck(oldLabel: Label, checked: Boolean) {
         if(!isNoteInitialised()) {
             labelAdapter.updateLabel(oldLabel.id, checked = checked)
-            labelsToAdd.clear()
-            labelsToAdd.addAll(labelAdapter.getCheckedLabels())
-            updateLabels(labelsToAdd, clear = true)
+            labelsInNoteChip.clear()
+            labelsInNoteChip.addAll(labelAdapter.getCheckedLabels())
+            updateLabels(labelsInNoteChip, clear = true)
             return
         }
         if (checked) {

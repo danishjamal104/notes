@@ -31,7 +31,7 @@ class NoteViewModel
         viewModelScope.launch {
             when (event) {
                 is NoteEvent.CreateNote -> createNote(event.note, event.title, event.labels)
-                is NoteEvent.DeleteNote -> deleteNote(event.note)
+                is NoteEvent.DeleteNote -> deleteNote(event.note, event.labels)
                 is NoteEvent.UpdateNote -> updateNote(event.note)
                 is NoteEvent.GetNote -> getNote(event.noteId)
             }
@@ -93,7 +93,12 @@ class NoteViewModel
         }
     }
 
-    private suspend fun deleteNote(note: Note) {
+    private suspend fun deleteNote(note: Note, labels: List<Label>?) {
+        if (labels != null && labels.isNotEmpty()) {
+            labels.forEach {
+                labelRepository.removeLabelFromNote(note, it)
+            }
+        }
         _noteState.value = NoteState.Loading
         when (val result = notesRepository.deleteNote(note)) {
             is ServiceResult.Success -> {
@@ -330,5 +335,5 @@ sealed class NoteEvent {
     data class GetNote(val noteId: Int) : NoteEvent()
     data class CreateNote(val note: String, val title: String? = null, val labels: List<Label>? = null) : NoteEvent()
     data class UpdateNote(val note: Note) : NoteEvent()
-    data class DeleteNote(val note: Note) : NoteEvent()
+    data class DeleteNote(val note: Note, val labels: List<Label>? = null) : NoteEvent()
 }
