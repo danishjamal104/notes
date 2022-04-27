@@ -143,4 +143,8 @@ constructor(val context: Context): RecyclerView.Adapter<LabelAdapter.LabelViewHo
         }[0]
         return data.indexOf(label)
     }
+
+    fun getCheckedLabels(): List<Label> {
+        return data.filter { it.checked }
+    }
 }

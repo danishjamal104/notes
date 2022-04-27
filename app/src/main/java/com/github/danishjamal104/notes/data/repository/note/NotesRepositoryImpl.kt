@@ -19,13 +19,14 @@ constructor(
     private val userId get() = userPreferences.getUserId()
 
 
-    override suspend fun createNote(noteText: String, noteTitle: String?): ServiceResult<Unit> {
+    override suspend fun createNote(noteText: String, noteTitle: String?): ServiceResult<Note> {
         val encryptedNoteText = noteText.encrypt(encryptionPreferences.key)
         val title = noteTitle ?: ""
         val note = Note(-1, userId, encryptedNoteText, title, Date().time)
         return try {
-            cacheDataSource.addNote(note)
-            ServiceResult.Success(Unit)
+            val id = cacheDataSource.addNote(note)
+            note.id = id.toInt()
+            ServiceResult.Success(note)
         } catch (e: Exception) {
             ServiceResult.Error("" + e.localizedMessage)
         }

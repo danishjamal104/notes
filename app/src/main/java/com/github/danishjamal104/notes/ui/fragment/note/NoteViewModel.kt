@@ -30,7 +30,7 @@ class NoteViewModel
     override fun setEvent(event: NoteEvent) {
         viewModelScope.launch {
             when (event) {
-                is NoteEvent.CreateNote -> createNote(event.note, event.title)
+                is NoteEvent.CreateNote -> createNote(event.note, event.title, event.labels)
                 is NoteEvent.DeleteNote -> deleteNote(event.note)
                 is NoteEvent.UpdateNote -> updateNote(event.note)
                 is NoteEvent.GetNote -> getNote(event.noteId)
@@ -50,8 +50,9 @@ class NoteViewModel
     }
 
 
-    private suspend fun createNote(note: String, title: String? = null) {
+    private suspend fun createNote(note: String, title: String? = null, labels: List<Label>?) {
         _noteState.value = NoteState.Loading
+        val noteObject: Note
         when (val result = notesRepository.createNote(note, title)) {
             is ServiceResult.Success -> {
                 _noteState.postValue(
@@ -60,9 +61,19 @@ class NoteViewModel
                         "Note created successfully"
                     )
                 )
+                noteObject = result.data
             }
-            is ServiceResult.Error ->
+            is ServiceResult.Error -> {
                 _noteState.postValue(NoteState.EventResult(false, result.reason))
+                return
+            }
+
+        }
+        if(labels == null) {
+            return
+        }
+        labels.forEach {
+            labelRepository.addLabelInNote(noteObject, it)
         }
     }
 
@@ -125,7 +136,28 @@ class NoteViewModel
         }
     }
 
-    private suspend fun fetchAllLabel(note: Note) {
+    private suspend fun fetchAllLabel() {
+        when(val result = labelRepository.fetchAllLabel()) {
+            is ServiceResult.Error -> _labelState.postValue(
+                LabelState.GetAllLabelResult(
+                    false,
+                    null,
+                    result.reason
+                )
+            )
+            is ServiceResult.Success -> _labelState.postValue(
+                LabelState.GetAllLabelResult(
+                    true,
+                    result.data
+                )
+            )
+        }
+    }
+
+    private suspend fun fetchAllLabel(note: Note?) {
+        if(note == null) {
+            return fetchAllLabel()
+        }
         when (val result = labelRepository.fetchAllLabel(note)) {
             is ServiceResult.Error -> _labelState.postValue(
                 LabelState.GetAllLabelResult(
@@ -143,7 +175,7 @@ class NoteViewModel
         }
     }
 
-    private suspend fun createLabel(note: Note, labelName: String) {
+    private suspend fun createLabel(note: Note?, labelName: String) {
         var label: Label? = null
         when (val result = labelRepository.createLabel(labelName)) {
             is ServiceResult.Error -> {
@@ -159,6 +191,11 @@ class NoteViewModel
             is ServiceResult.Success -> {
                 label = result.data
             }
+        }
+        if (note == null) {
+            label.checked = true
+            _labelState.postValue(LabelState.CreateLabelResult(true, label))
+            return
         }
         when (val result = labelRepository.addLabelInNote(note, label)) {
             is ServiceResult.Error -> {
@@ -274,8 +311,8 @@ sealed class LabelState {
 
 sealed class LabelEvent {
     data class GetLabel(val note: Note) : LabelEvent()
-    data class GetAllLabel(val note: Note) : LabelEvent()
-    data class CreateLabel(val note: Note, val labelName: String) : LabelEvent()
+    data class GetAllLabel(val note: Note?) : LabelEvent()
+    data class CreateLabel(val note: Note?, val labelName: String) : LabelEvent()
     data class UpdateLabel(val label: Label, val newLabelName: String) : LabelEvent()
     data class DeleteLabel(val label: Label) : LabelEvent()
     data class AddLabelInNote(val label: Label, val note: Note) : LabelEvent()
@@ -291,7 +328,7 @@ sealed class NoteState {
 
 sealed class NoteEvent {
     data class GetNote(val noteId: Int) : NoteEvent()
-    data class CreateNote(val note: String, val title: String? = null) : NoteEvent()
+    data class CreateNote(val note: String, val title: String? = null, val labels: List<Label>? = null) : NoteEvent()
     data class UpdateNote(val note: Note) : NoteEvent()
     data class DeleteNote(val note: Note) : NoteEvent()
 }

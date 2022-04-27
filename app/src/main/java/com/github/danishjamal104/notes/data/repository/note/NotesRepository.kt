@@ -5,7 +5,7 @@ import com.github.danishjamal104.notes.data.model.Note
 import com.github.danishjamal104.notes.util.ServiceResult
 
 interface NotesRepository {
-    suspend fun createNote(noteText: String, noteTitle: String? = null): ServiceResult<Unit>
+    suspend fun createNote(noteText: String, noteTitle: String? = null): ServiceResult<Note>
     suspend fun insertNotes(notes: List<Note>): ServiceResult<Unit>
     suspend fun insertNote(note: Note): ServiceResult<Unit>
     suspend fun getNotes(): ServiceResult<List<Note>>

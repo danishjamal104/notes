@@ -50,6 +50,8 @@ class NoteFragment : Fragment(R.layout.fragment_note), DialogAction {
 
     private lateinit var labelComponent: LabelComponent
 
+    private val labelsToAdd: MutableList<Label> = mutableListOf()
+
     private var isNoteValueChanged = false
     private var isNoteTitleChanged = false
     private val hasDataChanged get() = isNoteTitleChanged || isNoteValueChanged
@@ -65,11 +67,12 @@ class NoteFragment : Fragment(R.layout.fragment_note), DialogAction {
         labelComponent = LabelComponent.bind(requireContext(), labelAdapter, this)
 
         binding.addLabel.setOnClickListener {
-            if (!this::note.isInitialized) {
+            labelComponent.show()
+            if (!isNoteInitialised()) {
+                viewModel.setLabelEvent(LabelEvent.GetAllLabel(null))
                 return@setOnClickListener
             }
             viewModel.setLabelEvent(LabelEvent.GetAllLabel(note))
-            labelComponent.show()
         }
     }
 
@@ -121,6 +124,10 @@ class NoteFragment : Fragment(R.layout.fragment_note), DialogAction {
                 is LabelState.CreateLabelResult -> {
                     if (it.success) {
                         labelAdapter.add(it.label!!)
+                        if(!isNoteInitialised()) {
+                            labelsToAdd.add(it.label)
+                            updateLabels(labelsToAdd)
+                        }
                     } else {
                         longToast(it.reason!!)
                     }
@@ -129,14 +136,22 @@ class NoteFragment : Fragment(R.layout.fragment_note), DialogAction {
                     if (it.success) {
                         it.labels!!
                         labelAdapter.setData(it.labels)
+                        if (!isNoteInitialised() && labelsToAdd.isNotEmpty()) {
+                            labelsToAdd.forEach { lb ->
+                                labelAdapter.updateLabel(lb.id, checked = lb.checked)
+                            }
+                        }
                     } else {
                         longToast(it.reason!!)
                     }
                 }
-                is LabelState.CheckStateUpdated -> labelAdapter.updateLabel(
-                    it.label.id,
-                    checked = it.isChecked
-                )
+                is LabelState.CheckStateUpdated -> {
+                    labelAdapter.updateLabel(
+                        it.label.id,
+                        checked = it.isChecked
+                    )
+                    updateLabels(labelAdapter.getCheckedLabels(), clear = true)
+                }
                 is LabelState.DeleteLabelResult -> {
                     if (!it.success) {
                         it.reason!!
@@ -172,7 +187,7 @@ class NoteFragment : Fragment(R.layout.fragment_note), DialogAction {
             }
         }
         binding.saveButton.setOnClickListener {
-            if (this::note.isInitialized) {
+            if (isNoteInitialised()) {
                 updateNote(note)
             } else {
                 createNote()
@@ -182,17 +197,17 @@ class NoteFragment : Fragment(R.layout.fragment_note), DialogAction {
             val isExecuted = executeIfNoteIdIsNegativeOne {
                 val title = binding.noteTitle.text.toString().trim()
                 val noteValue = binding.note.text.toString().trim()
-                if(title.isEmpty() && noteValue.isEmpty()) {
+                if (title.isEmpty() && noteValue.isEmpty()) {
                     findNavController().navigate(R.id.action_noteFragment_to_homeFragment)
                     return@executeIfNoteIdIsNegativeOne true
                 }
                 false
             }
-            if(!isExecuted && !hasDataChanged) {
+            if (!isExecuted && !hasDataChanged) {
                 findNavController().navigate(R.id.action_noteFragment_to_homeFragment)
                 return@setOnClickListener
             }
-            if(!isExecuted) {
+            if (!isExecuted) {
                 requireContext().showDefaultMaterialAlert(
                     "Confirm",
                     "Do you want to discard your changes"
@@ -230,7 +245,7 @@ class NoteFragment : Fragment(R.layout.fragment_note), DialogAction {
                 executeIfNoteIdIsNegativeOne {
                     isNoteValueChanged = newText.isNotEmpty()
                     Log.i("hasDataChanged", "" + hasDataChanged)
-                    if(hasDataChanged) {
+                    if (hasDataChanged) {
                         binding.saveButton.visible()
                     } else {
                         binding.saveButton.gone()
@@ -249,7 +264,7 @@ class NoteFragment : Fragment(R.layout.fragment_note), DialogAction {
                 val newTitle = s.toString().trim()
                 if (isNoteInitialised()) {
                     isNoteTitleChanged = newTitle != note.title
-                    if(hasDataChanged) {
+                    if (hasDataChanged) {
                         binding.saveButton.visible()
                     } else {
                         binding.saveButton.gone()
@@ -258,7 +273,7 @@ class NoteFragment : Fragment(R.layout.fragment_note), DialogAction {
                 executeIfNoteIdIsNegativeOne {
                     isNoteTitleChanged = newTitle.isNotEmpty()
                     Log.i("hasDataChanged", "" + hasDataChanged)
-                    if(hasDataChanged) {
+                    if (hasDataChanged) {
                         binding.saveButton.visible()
                     } else {
                         binding.saveButton.gone()
@@ -277,8 +292,8 @@ class NoteFragment : Fragment(R.layout.fragment_note), DialogAction {
     }
 
     private fun executeIfNoteIdIsNegativeOne(block: () -> Boolean): Boolean {
-         return noteId?.let {
-            return if(it == -1) {
+        return noteId?.let {
+            return if (it == -1) {
                 block.invoke()
             } else {
                 false
@@ -298,7 +313,7 @@ class NoteFragment : Fragment(R.layout.fragment_note), DialogAction {
             shortToast("Note title can't be empty")
             return
         }
-        viewModel.setEvent(NoteEvent.CreateNote(text, title))
+        viewModel.setEvent(NoteEvent.CreateNote(text, title, labelAdapter.getCheckedLabels()))
     }
 
     private fun updateNote(
@@ -323,7 +338,12 @@ class NoteFragment : Fragment(R.layout.fragment_note), DialogAction {
     }
 
     // adds the chip in the chip group
-    private fun updateLabels(labels: List<Label>) {
+    private fun updateLabels(labels: List<Label>, clear: Boolean = false) {
+        if(clear) {
+            while (binding.chipGroup.childCount > 1) {
+                binding.chipGroup.removeViewAt(0)
+            }
+        }
         labels.forEach {
             val chip = Chip(requireContext())
             chip.text = it.value
@@ -425,7 +445,12 @@ class NoteFragment : Fragment(R.layout.fragment_note), DialogAction {
 
     override fun createLabel(labelName: String) {
         labelComponent.releaseFocus()
-        viewModel.setLabelEvent(LabelEvent.CreateLabel(note, labelName))
+        viewModel.setLabelEvent(
+            LabelEvent.CreateLabel(
+                if (isNoteInitialised()) note else null,
+                labelName
+            )
+        )
     }
 
     override fun deleteLabel(label: Label) {
@@ -437,6 +462,13 @@ class NoteFragment : Fragment(R.layout.fragment_note), DialogAction {
     }
 
     override fun updateLabelCheck(oldLabel: Label, checked: Boolean) {
+        if(!isNoteInitialised()) {
+            labelAdapter.updateLabel(oldLabel.id, checked = checked)
+            labelsToAdd.clear()
+            labelsToAdd.addAll(labelAdapter.getCheckedLabels())
+            updateLabels(labelsToAdd, clear = true)
+            return
+        }
         if (checked) {
             viewModel.setLabelEvent(LabelEvent.AddLabelInNote(oldLabel, note))
         } else {
