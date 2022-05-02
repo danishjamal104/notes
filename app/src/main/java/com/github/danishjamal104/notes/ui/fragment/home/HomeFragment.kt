@@ -111,12 +111,12 @@ class HomeFragment : Fragment(R.layout.fragment_home), ItemClickListener<Note> {
         binding.filterButton.setOnClickListener {
             adapter.createBackup()
             viewModel.setEvent(HomeEvent.GetLabels)
+            binding.filterButton.isClickable = false
         }
         binding.clearFilter.setOnClickListener {
             adapter.restore()
             hideFilterLayout()
-            adapter.clearAll()
-            viewModel.setEvent(HomeEvent.GetNotes)
+            binding.filterButton.isClickable = true
         }
     }
 
@@ -144,11 +144,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), ItemClickListener<Note> {
         hideProgress()
         if (state.success) {
             adapter.clearAll()
-            val notes = state.notes!!
-            if (notes.isEmpty()) {
-                shortToast("No notes with matching labels")
-            }
-            adapter.addNotes(state.notes)
+            state.notes?.let { adapter.addNotes(it) }
         } else {
             longToast("Unable to apply filter")
         }
@@ -187,7 +183,6 @@ class HomeFragment : Fragment(R.layout.fragment_home), ItemClickListener<Note> {
             hideFilterLayout()
             return
         }
-        shortToast("Showing ${labels.size} labels")
         updateLabels(labels)
         showFilterLayout()
 

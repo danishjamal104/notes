@@ -89,7 +89,9 @@ constructor(val context: Context): RecyclerView.Adapter<NotesAdapter.NoteViewHol
     }
 
     fun restore() {
+        val size = itemCount
         data.clear()
+        notifyItemRangeRemoved(0, size)
         addNotes(backup)
     }
 
