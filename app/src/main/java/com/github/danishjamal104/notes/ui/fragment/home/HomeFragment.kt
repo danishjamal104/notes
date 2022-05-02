@@ -161,7 +161,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), ItemClickListener<Note> {
             longToast(state.reason!!)
         }
         hideProgress()
-        updateNoteList()
+        //updateNoteList()
     }
 
     private fun showProgress() {
@@ -181,6 +181,8 @@ class HomeFragment : Fragment(R.layout.fragment_home), ItemClickListener<Note> {
         if (labels.size == 0) {
             longToast(getString(R.string.no_label_filter_info_text))
             hideFilterLayout()
+            adapter.restore()
+            binding.filterButton.isClickable = true
             return
         }
         updateLabels(labels)
@@ -231,7 +233,6 @@ class HomeFragment : Fragment(R.layout.fragment_home), ItemClickListener<Note> {
 
     /**
      * this function will take the latest [labels], and apply db query and update adapter list
-     * todo update adapter for filter logic
      * apply filter login in [HomeFragment] to filter the note list
      */
     private fun updateNoteList() {
